@@ -15,5 +15,6 @@ public class AutoScrollInputField : MonoBehaviour
     void Update()
     {
         scroll.verticalNormalizedPosition = 0;
+        input.ForceLabelUpdate();
     }
 }
