@@ -2204,8 +2204,8 @@ namespace None
                 return;
             }
 
-            if (m_TextComponent.preferredHeight < m_TextViewport.rect.height)
-                return;
+            // if (m_TextComponent.preferredHeight < m_TextViewport.rect.height)
+            //     return;
 
             float scrollDirection = -eventData.scrollDelta.y;
 

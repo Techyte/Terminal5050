@@ -76,7 +76,9 @@ public class TerminalBehaviour : MonoBehaviour
                            $"<b>Useful commands:</b>\n" +
                            "tName {newName} - Change the terminal name\n" +
                            "tColour {newColour} - Change the terminal colour\n" +
-                           "diog - Perform system diagnostics");
+                           "diog - Perform system diagnostics" +
+                           "control + C - Force stop current process" +
+                           "cd - Browse system files");
                     beep.Play();
                     CMDManager.Instance.outputting = false;
                     break;
@@ -92,8 +94,8 @@ public class TerminalBehaviour : MonoBehaviour
                     Output($"Performing system diagnostics...");
                     StartCoroutine(Diagnostics());
                     break;
-                case "dir":
-                    DirectoryManager.Instance.DirCommand();
+                case "cd":
+                    DirectoryManager.Instance.OpenDirectoryScreen();
                     beep.Play();
                     break;
                 case "tetst":

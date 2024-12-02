@@ -15,6 +15,7 @@ public class CMDManager : MonoBehaviour
     [SerializeField] private AudioSource[] computerWhispers;
     [SerializeField] private AudioSource fadeWhisper;
     [SerializeField] private AudioSource click;
+    [SerializeField] private AudioSource beep;
     [SerializeField] private AudioClip clickClip;
     [SerializeField] private Image fade;
     [SerializeField] private float fadeSpeed;
@@ -46,14 +47,21 @@ public class CMDManager : MonoBehaviour
     {
         if (UnityEngine.Input.GetKeyDown(KeyCode.Return))
         {
-            if (!outputting && !string.IsNullOrEmpty(input.text))
+            if (!outputting && !string.IsNullOrEmpty(input.text) && !choosing)
             {
                 Input();
             }
-            else if (outputting && choosing)
+            else if (choosing)
             {
                 OptionSelected(currentChoiceIndex);
             }
+            input.Select();
+        }
+
+        if (UnityEngine.Input.GetKey(KeyCode.LeftControl) && UnityEngine.Input.GetKeyDown(KeyCode.C) && (outputting || choosing))
+        {
+            StopAll();
+            beep.Play();
         }
 
         if (UnityEngine.Input.GetKeyDown(KeyCode.UpArrow) && choosing)
@@ -61,6 +69,8 @@ public class CMDManager : MonoBehaviour
             currentChoiceIndex--;
             ChoiceChanged();
             UpdateChoice();
+            input.Select();
+            click.PlayOneShot(clickClip);
         }
 
         if (UnityEngine.Input.GetKeyDown(KeyCode.DownArrow) && choosing)
@@ -68,6 +78,8 @@ public class CMDManager : MonoBehaviour
             currentChoiceIndex++;
             ChoiceChanged();
             UpdateChoice();
+            input.Select();
+            click.PlayOneShot(clickClip);
         }
 
         if (fadeOut)
@@ -83,6 +95,14 @@ public class CMDManager : MonoBehaviour
                 Application.Quit();
             }
         }
+    }
+
+    public void StopAll()
+    {
+        outputting = false;
+        choosing = false;
+        
+        Output("Canceled");
     }
 
     public void TypedLetter()
@@ -126,6 +146,8 @@ public class CMDManager : MonoBehaviour
         _options = options;
         _sender = sender;
 
+        Output("");
+        
         _originalText = text.text;
         
         UpdateChoice();
@@ -133,8 +155,6 @@ public class CMDManager : MonoBehaviour
 
     public void OptionSelected(int index)
     {
-        Output($"Selected option {index} - {_options[index]}");
-        
         choosing = false;
         outputting = false;
         
@@ -185,6 +205,7 @@ public class CMDManager : MonoBehaviour
         {
             text.text = arrow ? text.text + "\n" + "> " + output : text.text + "\n" + output;
         }
+        outputting = false;
     }
 
     public IEnumerator OutputCreepy(string output)

@@ -1,13 +1,26 @@
-using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using UnityEngine;
 
 public class DirectoryManager : MonoBehaviour
 {
     public static DirectoryManager Instance;
+    [SerializeField] private AudioSource beep;
+    [SerializeField] private string backString = "<color=yellow>BACK</color>";
+    [SerializeField] private string lockedString = "#locked";
+    [SerializeField] private AudioSource error;
+    [SerializeField] private AudioClip errorClip;
+
+    private string _currentPath;
+    private string _root;
 
     private void Awake()
     {
         Instance = this;
+        _currentPath = Application.persistentDataPath+"/Directories";
+        _root = Application.persistentDataPath+"/Directories";
     }
 
     private void Start()
@@ -20,20 +33,89 @@ public class DirectoryManager : MonoBehaviour
         // were we the one that called for the choice
         if (sender is DirectoryManager)
         {
-            Debug.Log($"Director manager called the choice of {e}");
+            string selected = dirs[e];
+
+            if (selected != backString && !selected.EndsWith(".txt") && !selected.Contains("CORE files"))
+            {
+                _currentPath += @"\"+dirs[e];
+                OpenDirectoryScreen();
+            }
+            else if (selected.EndsWith(".txt"))
+            {
+                DisplayTxtFile(_currentPath + @"\"+dirs[e]);
+            }
+            else if (selected.Contains("CORE files"))
+            {
+                CMDManager.Instance.Output("<color=red>ACCESS DENIED</color>");
+                OpenDirectoryScreen();
+            }
+            else
+            {
+                _currentPath = _currentPath.Remove(_currentPath.LastIndexOf(Path.DirectorySeparatorChar)); // removes the last file location
+                OpenDirectoryScreen();
+            }
+            
+            beep.Play();
         }
     }
 
-    public void DirCommand()
+    private void DisplayTxtFile(string path)
     {
-        string[] dirs = new[]
+        CMDManager.Instance.Output("\nReading...");
+        StreamReader sr = new StreamReader(path);
+
+        string output = sr.ReadToEnd();
+
+        if (output == lockedString)
         {
-            "Documents",
-            "Work",
-            "Music",
-            "Pictures",
-            "Images"
-        };
-        CMDManager.Instance.OutputChoice(dirs, this);
+            StartCoroutine(LockedFile());
+        }
+        else
+        {
+            CMDManager.Instance.Output(output);
+        }
+    }
+
+    private IEnumerator LockedFile()
+    {
+        yield return new WaitForSeconds(1);
+        CMDManager.Instance.Output("<color=yellow>Retrieving file info is taking longer than expected</color>");
+        yield return new WaitForSeconds(2);
+        CMDManager.Instance.Output("<color=red>ERROR READING TEXT FILE</color>");
+        error.PlayOneShot(errorClip);
+    }
+
+    private List<string> dirs;
+    private List<string> files = new List<string>();
+
+    public void OpenDirectoryScreen()
+    {
+        dirs = new List<string>(Directory.EnumerateDirectories(_currentPath));
+        files = new List<string>(Directory.EnumerateFiles(_currentPath));
+
+        List<string> f = files.ToList();
+        files.Clear();
+
+        foreach (var file in f)
+        {
+            if (file.EndsWith(".txt"))
+            {
+                files.Add(file);
+            }
+        }
+        
+        dirs.AddRange(files);
+        
+        for (int i = 0; i < dirs.Count; i++)
+        {
+            dirs[i] = dirs[i].Substring(dirs[i].LastIndexOf(Path.DirectorySeparatorChar) + 1); // removes the absolute location from the string
+        }
+
+        if (_currentPath != _root)
+        {
+            dirs.Add(backString);
+        }
+        
+        CMDManager.Instance.OutputChoice(dirs.ToArray(), this);
     }
 }

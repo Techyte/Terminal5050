@@ -1886,6 +1886,7 @@ MonoBehaviour:
   - {fileID: 711756695}
   fadeWhisper: {fileID: 695126262}
   click: {fileID: 1797763012}
+  beep: {fileID: 546325547}
   clickClip: {fileID: 8300000, guid: 69038f9a34c6fd74bbc6b76ced308c48, type: 3}
   fade: {fileID: 1683502290}
   fadeSpeed: 1
@@ -1942,6 +1943,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fe9610e97381fa40a6502cf14cfb9c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  beep: {fileID: 546325547}
+  backString: <color=yellow>BACK</color>
+  lockedString: '#locked'
+  error: {fileID: 1591503085}
+  errorClip: {fileID: 8300000, guid: 60b35b82a2285774385b19f427215df3, type: 3}
 --- !u!1 &619394800
 GameObject:
   m_ObjectHideFlags: 0
