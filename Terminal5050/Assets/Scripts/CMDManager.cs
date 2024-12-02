@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using None;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,7 +11,7 @@ public class CMDManager : MonoBehaviour
     public static CMDManager Instance;
     
     [SerializeField] private TMP_InputField input;
-    [SerializeField] private TMP_InputField text;
+    [SerializeField] private AltTMP_InputField text;
     [SerializeField] private AudioSource[] computerWhispers;
     [SerializeField] private AudioSource fadeWhisper;
     [SerializeField] private AudioSource click;

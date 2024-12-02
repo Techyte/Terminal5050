@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Statistic">
+    <option name="excludeDotArtifactDirectory" value="true" />
+    <option name="excludedDirectories">
+      <list>
+        <option value="$PROJECT_DIR$/.idea" />
+        <option value="$PROJECT_DIR$/Library" />
+        <option value="$PROJECT_DIR$/Logs" />
+        <option value="$PROJECT_DIR$/obj" />
+        <option value="$PROJECT_DIR$/Packages" />
+        <option value="$PROJECT_DIR$/ProjectSettings" />
+        <option value="$PROJECT_DIR$/Temp" />
+        <option value="$PROJECT_DIR$/UserSettings" />
+        <option value="$PROJECT_DIR$/Assets/Fonts" />
+        <option value="$PROJECT_DIR$/Assets/Realistic Glitches Lite" />
+        <option value="$PROJECT_DIR$/Assets/Resources" />
+        <option value="$PROJECT_DIR$/Assets/Scan Lines" />
+        <option value="$PROJECT_DIR$/Assets/Scenes" />
+        <option value="$PROJECT_DIR$/Assets/Settings" />
+        <option value="$PROJECT_DIR$/Assets/Sound" />
+        <option value="$PROJECT_DIR$/Assets/Sprites" />
+        <option value="$PROJECT_DIR$/Assets/TextMesh Pro" />
+      </list>
+    </option>
+  </component>
+</project>
