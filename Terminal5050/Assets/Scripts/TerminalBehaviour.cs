@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -9,7 +8,12 @@ public class TerminalBehaviour : MonoBehaviour
     [SerializeField] private AudioSource error;
     [SerializeField] private AudioClip errorClip;
     
-    private int attempts;
+    private WaitUntil _spookyFinish = new WaitUntil((() =>
+    {
+        return !CMDManager.Instance.creepyOutputting;
+    }));
+
+    private bool _computerAwake;
 
     private void Start()
     {
@@ -24,14 +28,19 @@ public class TerminalBehaviour : MonoBehaviour
         }
     }
 
+    public void Wake()
+    {
+        _computerAwake = true;
+    }
+
     public void Output(string output, bool arrow = false)
     {
         CMDManager.Instance.Output(output, arrow);
     }
     
-    public void OutputCreepy(string output)
+    public void OutputSpooky(string output)
     {
-        CMDManager.Instance.StartCoroutine(CMDManager.Instance.OutputCreepy(output));
+        CMDManager.Instance.StartCoroutine(CMDManager.Instance.OutputSpooky(output));
     }
     
     public void HandleCommand(string command)
@@ -39,86 +48,81 @@ public class TerminalBehaviour : MonoBehaviour
         string[] parts = command.Split(' ');
         string head = parts[0];
 
-        switch (attempts)
+        switch (head)
         {
-            case 3:
-                OutputCreepy("Hello there");
+            case "help":
+                CMDManager.Instance.StartProcess();
+                Output($"Welcome to {CMDManager.Instance.terminalName}, the purpose of this interface is to <b><color=red>[REDACTED]</color></b>, please enjoy!\n\n" +
+                       $"<b>Useful commands:</b>\n\n" +
+                       "tName {newName} - Change the terminal name\n" +
+                       "tColour {newColour} - Change the terminal colour\n" +
+                       "dig - Perform system diagnostics\n" +
+                       "cd - Browse system files\n\n" + 
+                        "control+C - Force stop current process");
+                beep.Play();
+                CMDManager.Instance.StopProcess();
                 break;
-            case 4:
-                OutputCreepy("Now aren't you just something");
+            case "tName":
+                CMDManager.Instance.StartProcess();
+                Output($"Attempting to change the terminal name to {parts[1]}");
+                StartCoroutine(ChangeError());
+                CMDManager.Instance.StopProcess();
                 break;
-            case 5:
-                OutputCreepy("Tapping away");
+            case "tColour":
+                CMDManager.Instance.StartProcess();
+                Output($"Attempting to change the terminal color to {parts[1]}");
+                StartCoroutine(ChangeError());
                 break;
-            case 6:
-                OutputCreepy("Without a care in the world");
+            case "dig":
+                CMDManager.Instance.StartProcess();
+                Output($"Performing system diagnostics...");
+                StartCoroutine(Diagnostics());
                 break;
-            case 7:
-                OutputCreepy("No idea what is to come");
+            case "cd":
+                CMDManager.Instance.StartProcess();
+                Output("\n</color>\u2191 \u2193 and \u21B2 to browse <color=grey>");
+                CMDManager.Instance.dManager.OpenDirectoryScreen();
+                beep.Play();
+                CMDManager.Instance.StopProcess();
                 break;
-            case 8:
-                OutputCreepy("You will see");
+            case "hardwarestore":
+                CMDManager.Instance.StartProcess();
+                Output($"Tire gauges, hamster cages, thermostats and bug deflectors\nTrailer hitch demagnetizers, automatic circumcisers");
+                beep.Play();
+                CMDManager.Instance.StopProcess();
                 break;
-            case 9:
-                OutputCreepy("You will see...");;
-                CMDManager.Instance.StartFading();
+            default:
+                CMDManager.Instance.StartProcess();
+                Output("Unknown command please try again");
+                error.PlayOneShot(errorClip);
+                CMDManager.Instance.StopProcess();
                 break;
         }
-        
-        attempts += 1;
 
-        if (attempts <= 3)
+        if (_computerAwake)
         {
-            switch (head)
-            {
-                case "help":
-                    Output($"Welcome to {CMDManager.Instance.terminalName}, the purpose of this interface is to <b><color=red>[REDACTED]</color></b>, please enjoy!\n\n" +
-                           $"<b>Useful commands:</b>\n" +
-                           "tName {newName} - Change the terminal name\n" +
-                           "tColour {newColour} - Change the terminal colour\n" +
-                           "diog - Perform system diagnostics" +
-                           "control + C - Force stop current process" +
-                           "cd - Browse system files");
-                    beep.Play();
-                    CMDManager.Instance.outputting = false;
-                    break;
-                case "tName":
-                    Output($"Attempting to change the terminal name to {parts[1]}");
-                    StartCoroutine(ChangeError());
-                    break;
-                case "tColour":
-                    Output($"Attempting to change the terminal color to {parts[1]}");
-                    StartCoroutine(ChangeError());
-                    break;
-                case "diog":
-                    Output($"Performing system diagnostics...");
-                    StartCoroutine(Diagnostics());
-                    break;
-                case "cd":
-                    DirectoryManager.Instance.OpenDirectoryScreen();
-                    beep.Play();
-                    break;
-                case "tetst":
-                    string[] e = new[]
-                    {
-                        "a",
-                        "b",
-                        "c"
-                    };
-                    CMDManager.Instance.OutputChoice(e, this);
-                    break;
-                case "hardwarestore":
-                    Output($"Tire gauges, hamster cages, thermostats and bug deflectors\nTrailer hitch demagnetizers, automatic circumcisers");
-                    CMDManager.Instance.outputting = false;
-                    beep.Play();
-                    break;
-                default:
-                    Output("Unknown command please try again");
-                    CMDManager.Instance.outputting = false;
-                    error.PlayOneShot(errorClip);
-                    break;
-            }
+            StartCoroutine(ComputerAwake());
         }
+    }
+
+    IEnumerator ComputerAwake()
+    {
+        yield return _spookyFinish;
+        
+        OutputSpooky("What...?");
+
+        yield return _spookyFinish;
+
+        yield return new WaitForSeconds(1);
+        
+        OutputSpooky("Im...?");
+        
+        CMDManager.Instance.StopProcess();
+    }
+
+    public void StopAll()
+    {
+        StopAllCoroutines();
     }
 
     private IEnumerator ChangeError()
@@ -132,7 +136,7 @@ public class TerminalBehaviour : MonoBehaviour
         
         Output("Unable to change terminal information, please try again later");
         
-        CMDManager.Instance.outputting = false;
+        CMDManager.Instance.StopProcess();
     }
 
     private IEnumerator Diagnostics()
@@ -158,16 +162,13 @@ public class TerminalBehaviour : MonoBehaviour
         
         Output("Attempting to retrieve critical core info...\n");
         yield return new WaitForSeconds(1);
-        OutputCreepy("Not today...");
+        OutputSpooky("Not today...");
 
-        yield return new WaitUntil((() =>
-        {
-            return !CMDManager.Instance.outputting;
-        }));
+        yield return _spookyFinish;
         
         Output("<color=red>ERROR</color>");
         error.PlayOneShot(errorClip);
         Output("Could not retrieve core info, please try again later");
-        CMDManager.Instance.outputting = false;
+        CMDManager.Instance.StopProcess();
     }
 }

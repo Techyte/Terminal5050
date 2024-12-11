@@ -2195,6 +2195,8 @@ namespace None
         /// <param name="eventData"></param>
         public virtual void OnScroll(PointerEventData eventData)
         {
+            return;
+            
             // Return if Single Line
             if (m_LineType == LineType.SingleLine)
             {

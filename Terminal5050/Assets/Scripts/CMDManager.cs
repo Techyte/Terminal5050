@@ -20,17 +20,22 @@ public class CMDManager : MonoBehaviour
     [SerializeField] private Image fade;
     [SerializeField] private float fadeSpeed;
     [SerializeField] private AudioSource[] allSources;
-    [SerializeField] private TerminalBehaviour tBehaviour;
+    public TerminalBehaviour tBehaviour;
+    public DirectoryManager dManager;
 
     public string terminalName = "Terminal5050";
 
     [HideInInspector] public float tfWaitTime = 0.1f;
 
     public EventHandler<int> OnChoiceSelected;
+    public EventHandler CreepyStart;
+    public EventHandler CreepyEnd;
+
+    public bool creepyOutputting;
 
     private int attempts;
 
-    [HideInInspector] public bool outputting;
+    public bool Outputting { get; private set; }
     private bool fadeOut;
 
     private int currentChoiceIndex;
@@ -47,7 +52,7 @@ public class CMDManager : MonoBehaviour
     {
         if (UnityEngine.Input.GetKeyDown(KeyCode.Return))
         {
-            if (!outputting && !string.IsNullOrEmpty(input.text) && !choosing)
+            if (!Outputting && !string.IsNullOrEmpty(input.text) && !choosing)
             {
                 Input();
             }
@@ -58,7 +63,7 @@ public class CMDManager : MonoBehaviour
             input.Select();
         }
 
-        if (UnityEngine.Input.GetKey(KeyCode.LeftControl) && UnityEngine.Input.GetKeyDown(KeyCode.C) && (outputting || choosing))
+        if (UnityEngine.Input.GetKey(KeyCode.LeftControl) && UnityEngine.Input.GetKeyDown(KeyCode.C) && (Outputting || choosing))
         {
             StopAll();
             beep.Play();
@@ -99,10 +104,14 @@ public class CMDManager : MonoBehaviour
 
     public void StopAll()
     {
-        outputting = false;
         choosing = false;
         
+        StopAllCoroutines();
+        tBehaviour.StopAll();
+        dManager.StopAll();
+        
         Output("Canceled");
+        StopProcess();
     }
 
     public void TypedLetter()
@@ -117,7 +126,9 @@ public class CMDManager : MonoBehaviour
         
         input.text = string.Empty;
 
+        StartProcess();
         Output(command, true);
+        StopProcess();
 
         StartCoroutine(TastefulWait(command));
         
@@ -132,31 +143,36 @@ public class CMDManager : MonoBehaviour
     }
 
     private string _originalText;
+    private string _promptText;
 
     private string[] _options;
 
     private object _sender;
 
-    public void OutputChoice(string[] options, object sender)
+    public void OutputChoice(string[] options, string prompt, object sender)
     {
+        StartProcess();
+        
         choosing = true;
-        outputting = true;
         
         currentChoiceIndex = 0;
         _options = options;
         _sender = sender;
+        _promptText = prompt;
 
         Output("");
         
         _originalText = text.text;
         
         UpdateChoice();
+        
+        StopProcess();
     }
 
     public void OptionSelected(int index)
     {
         choosing = false;
-        outputting = false;
+        StopProcess();
         
         OnChoiceSelected.Invoke(_sender, index);
     }
@@ -176,11 +192,12 @@ public class CMDManager : MonoBehaviour
     private void UpdateChoice()
     {
         text.text = _originalText;
+        text.text += "\n"+_promptText;
         for (int i = 0; i < _options.Length; i++)
         {
             if (currentChoiceIndex == i)
             {
-                text.text += $"<font=\"Terminus\"><mark=#007304><color=#000000>\n[{i}] - {_options[i]}</color></mark></font>";
+                text.text += $"\n<font=\"Terminus SDF\"><mark=#007304><color=#000000>[{i}] - {_options[i]}</color></mark></font>";
             }
             else
             {
@@ -189,9 +206,26 @@ public class CMDManager : MonoBehaviour
         }
     }
 
+    public void StartProcess()
+    {
+        Outputting = true;
+    }
+
+    public void StopProcess()
+    {
+        Outputting = false;
+    }
+
     public void Output(string output, bool arrow = false)
     {
-        outputting = true;
+        bool wasOutputting = Outputting;
+        
+        if (!Outputting)
+        {
+            Debug.LogWarning("No process running, creating process for output");
+            StartProcess();
+        }
+        
         if (arrow == false)
         {
             output = "<color=grey>" + output + "</color>";
@@ -205,12 +239,23 @@ public class CMDManager : MonoBehaviour
         {
             text.text = arrow ? text.text + "\n" + "> " + output : text.text + "\n" + output;
         }
-        outputting = false;
+
+        if (!wasOutputting)
+        {
+            StopProcess();
+        }
     }
 
-    public IEnumerator OutputCreepy(string output)
+    public IEnumerator OutputSpooky(string output)
     {
-        outputting = true;
+        bool wasOutputting = Outputting;
+        
+        if (!Outputting)
+        {
+            Debug.LogWarning("No process running, creating process for output");
+            StartProcess();
+        }
+        
         AudioSource whisper = computerWhispers[Random.Range(0, computerWhispers.Length)];
         
         whisper.Play();
@@ -227,7 +272,11 @@ public class CMDManager : MonoBehaviour
         }
         text.text += "</color>";
         whisper.Stop();
-        outputting = false;
+        
+        if (!wasOutputting)
+        {
+            StopProcess();
+        }
     }
 
     public void StartFading()

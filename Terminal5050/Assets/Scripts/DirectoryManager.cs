@@ -6,7 +6,6 @@ using UnityEngine;
 
 public class DirectoryManager : MonoBehaviour
 {
-    public static DirectoryManager Instance;
     [SerializeField] private AudioSource beep;
     [SerializeField] private string backString = "<color=yellow>BACK</color>";
     [SerializeField] private string lockedString = "#locked";
@@ -14,11 +13,11 @@ public class DirectoryManager : MonoBehaviour
     [SerializeField] private AudioClip errorClip;
 
     private string _currentPath;
+    private string CurrentPathTrunc => _currentPath.Substring(_currentPath.LastIndexOf(Path.DirectorySeparatorChar) + 1);
     private string _root;
 
     private void Awake()
     {
-        Instance = this;
         _currentPath = Application.persistentDataPath+"/Directories";
         _root = Application.persistentDataPath+"/Directories";
     }
@@ -42,7 +41,7 @@ public class DirectoryManager : MonoBehaviour
             }
             else if (selected.EndsWith(".txt"))
             {
-                DisplayTxtFile(_currentPath + @"\"+dirs[e]);
+                DisplayTxtFile(_currentPath + @"\"+dirs[e], dirs[e]);
             }
             else if (selected.Contains("CORE files"))
             {
@@ -59,9 +58,10 @@ public class DirectoryManager : MonoBehaviour
         }
     }
 
-    private void DisplayTxtFile(string path)
+    private void DisplayTxtFile(string path, string name)
     {
-        CMDManager.Instance.Output("\nReading...");
+        CMDManager.Instance.StartProcess();
+        CMDManager.Instance.Output($"\nReading {name}...");
         StreamReader sr = new StreamReader(path);
 
         string output = sr.ReadToEnd();
@@ -78,11 +78,20 @@ public class DirectoryManager : MonoBehaviour
 
     private IEnumerator LockedFile()
     {
+        CMDManager.Instance.StartProcess();
         yield return new WaitForSeconds(1);
         CMDManager.Instance.Output("<color=yellow>Retrieving file info is taking longer than expected</color>");
         yield return new WaitForSeconds(2);
         CMDManager.Instance.Output("<color=red>ERROR READING TEXT FILE</color>");
         error.PlayOneShot(errorClip);
+
+        CMDManager.Instance.tBehaviour.Wake();
+        CMDManager.Instance.StopProcess();
+    }
+
+    public void StopAll()
+    {
+        StopAllCoroutines();
     }
 
     private List<string> dirs;
@@ -115,7 +124,18 @@ public class DirectoryManager : MonoBehaviour
         {
             dirs.Add(backString);
         }
+
+        string prompt;
+
+        if (_currentPath == _root)
+        {
+            prompt = "Root";
+        }
+        else
+        {
+            prompt = CurrentPathTrunc;
+        }
         
-        CMDManager.Instance.OutputChoice(dirs.ToArray(), this);
+        CMDManager.Instance.OutputChoice(dirs.ToArray(), prompt, this);
     }
 }
