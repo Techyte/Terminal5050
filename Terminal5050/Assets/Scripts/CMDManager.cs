@@ -116,7 +116,6 @@ public class CMDManager : MonoBehaviour
 
     public void TypedLetter()
     {
-        Debug.Log("typed");
         click.PlayOneShot(clickClip);
     }
 

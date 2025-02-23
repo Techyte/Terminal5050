@@ -109,6 +109,10 @@ public class TerminalBehaviour : MonoBehaviour
     {
         yield return _spookyFinish;
         
+        CMDManager.Instance.StartProcess();
+        
+        Output("");
+        
         OutputSpooky("What...?");
 
         yield return _spookyFinish;

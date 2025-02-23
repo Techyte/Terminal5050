@@ -7,6 +7,7 @@ using UnityEngine;
 public class DirectoryManager : MonoBehaviour
 {
     [SerializeField] private AudioSource beep;
+    [SerializeField] private AudioSource unhappyBeep;
     [SerializeField] private string backString = "<color=yellow>BACK</color>";
     [SerializeField] private string lockedString = "#locked";
     [SerializeField] private AudioSource error;
@@ -84,9 +85,12 @@ public class DirectoryManager : MonoBehaviour
         yield return new WaitForSeconds(2);
         CMDManager.Instance.Output("<color=red>ERROR READING TEXT FILE</color>");
         error.PlayOneShot(errorClip);
+        yield return new WaitForSeconds(1);
+        CMDManager.Instance.Output("Exiting file read");
+        unhappyBeep.Play();
 
-        CMDManager.Instance.tBehaviour.Wake();
         CMDManager.Instance.StopProcess();
+        CMDManager.Instance.tBehaviour.Wake();
     }
 
     public void StopAll()
