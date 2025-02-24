@@ -38,11 +38,6 @@ public class TerminalBehaviour : MonoBehaviour
         CMDManager.Instance.Output(output, arrow);
     }
     
-    public void OutputSpooky(string output)
-    {
-        CMDManager.Instance.StartCoroutine(CMDManager.Instance.OutputSpooky(output));
-    }
-    
     public void HandleCommand(string command)
     {
         string[] parts = command.Split(' ');
@@ -52,12 +47,13 @@ public class TerminalBehaviour : MonoBehaviour
         {
             case "help":
                 CMDManager.Instance.StartProcess();
-                Output($"Welcome to {CMDManager.Instance.terminalName}, the purpose of this interface is to <b><color=red>[REDACTED]</color></b>, please enjoy!\n\n" +
+                Output($"Welcome to {CMDManager.Instance.terminalName}, the purpose of this interface is to <b><color=red>[REDACTED]</color></b>.\n\n" +
                        $"<b>Useful commands:</b>\n\n" +
                        "tName {newName} - Change the terminal name\n" +
                        "tColour {newColour} - Change the terminal colour\n" +
                        "dig - Perform system diagnostics\n" +
                        "cd - Browse system files\n\n" + 
+                       "stopspeaker - Stop any sound comming from speakers\n\n" + 
                         "control+C - Force stop current process");
                 beep.Play();
                 CMDManager.Instance.StopProcess();
@@ -91,6 +87,19 @@ public class TerminalBehaviour : MonoBehaviour
                 beep.Play();
                 CMDManager.Instance.StopProcess();
                 break;
+            case "door":
+                CMDManager.Instance.StartProcess();
+                Output($"Toggling door {parts[1]}");
+                DoorManager.Instance.ToggleDoor(parts[1]);
+                beep.Play();
+                CMDManager.Instance.StopProcess();
+                break;
+            case "stopspeaker":
+                CMDManager.Instance.StartProcess();
+                Output($"Stopping all speakers");
+                SpeakerManager.Instance.StopPlaying();
+                CMDManager.Instance.StopProcess();
+                break;
             default:
                 CMDManager.Instance.StartProcess();
                 Output("Unknown command please try again");
@@ -98,30 +107,6 @@ public class TerminalBehaviour : MonoBehaviour
                 CMDManager.Instance.StopProcess();
                 break;
         }
-
-        if (_computerAwake)
-        {
-            StartCoroutine(ComputerAwake());
-        }
-    }
-
-    IEnumerator ComputerAwake()
-    {
-        yield return _spookyFinish;
-        
-        CMDManager.Instance.StartProcess();
-        
-        Output("");
-        
-        OutputSpooky("What...?");
-
-        yield return _spookyFinish;
-
-        yield return new WaitForSeconds(1);
-        
-        OutputSpooky("Im...?");
-        
-        CMDManager.Instance.StopProcess();
     }
 
     public void StopAll()
@@ -166,7 +151,6 @@ public class TerminalBehaviour : MonoBehaviour
         
         Output("Attempting to retrieve critical core info...\n");
         yield return new WaitForSeconds(1);
-        OutputSpooky("Not today...");
 
         yield return _spookyFinish;
         
@@ -174,5 +158,10 @@ public class TerminalBehaviour : MonoBehaviour
         error.PlayOneShot(errorClip);
         Output("Could not retrieve core info, please try again later");
         CMDManager.Instance.StopProcess();
+    }
+
+    public void StartPlaying(string location)
+    {
+        SpeakerManager.Instance.StartPlaying(location);
     }
 }

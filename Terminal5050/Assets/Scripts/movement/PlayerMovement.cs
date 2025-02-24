@@ -22,6 +22,7 @@ public class PlayerMovement : MonoBehaviour
     [Space]
 
     [SerializeField] private Transform orientation;
+    [SerializeField] private Transform respawn;
 
     [SerializeField] private Rigidbody rb;
     

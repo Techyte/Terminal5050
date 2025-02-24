@@ -218,18 +218,18 @@ public class CMDManager : MonoBehaviour
     public void Output(string output, bool arrow = false)
     {
         bool wasOutputting = Outputting;
-        
+
         if (!Outputting)
         {
             Debug.LogWarning("No process running, creating process for output");
             StartProcess();
         }
-        
+
         if (arrow == false)
         {
             output = "<color=grey>" + output + "</color>";
         }
-        
+
         if (text.text == string.Empty)
         {
             text.text = arrow ? "> " + output : output;
@@ -243,45 +243,5 @@ public class CMDManager : MonoBehaviour
         {
             StopProcess();
         }
-    }
-
-    public IEnumerator OutputSpooky(string output)
-    {
-        bool wasOutputting = Outputting;
-        
-        if (!Outputting)
-        {
-            Debug.LogWarning("No process running, creating process for output");
-            StartProcess();
-        }
-        
-        AudioSource whisper = computerWhispers[Random.Range(0, computerWhispers.Length)];
-        
-        whisper.Play();
-        text.text += "<color=white>";
-        for (int i = 0; i < output.Length; i++)
-        {
-            if (i == 0)
-            {
-                text.text += "\n";
-            }
-
-            yield return new WaitForSeconds(Random.Range(0.01f, 0.1f));
-            text.text += output[i];
-        }
-        text.text += "</color>";
-        whisper.Stop();
-        
-        if (!wasOutputting)
-        {
-            StopProcess();
-        }
-    }
-
-    public void StartFading()
-    {
-        fade.enabled = true;
-        fadeOut = true;
-        fadeWhisper.Play();
     }
 }

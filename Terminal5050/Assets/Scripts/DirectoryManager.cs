@@ -12,6 +12,7 @@ public class DirectoryManager : MonoBehaviour
     [SerializeField] private string lockedString = "#locked";
     [SerializeField] private AudioSource error;
     [SerializeField] private AudioClip errorClip;
+    [SerializeField] private string[] acceptableFileEndings;
 
     private string _currentPath;
     private string CurrentPathTrunc => _currentPath.Substring(_currentPath.LastIndexOf(Path.DirectorySeparatorChar) + 1);
@@ -21,11 +22,25 @@ public class DirectoryManager : MonoBehaviour
     {
         _currentPath = Application.persistentDataPath+"/Directories";
         _root = Application.persistentDataPath+"/Directories";
+        Debug.Log(Application.persistentDataPath);
     }
 
     private void Start()
     {
         CMDManager.Instance.OnChoiceSelected += OnChoiceSelected;
+    }
+
+    private bool AcceptableFile(string file)
+    {
+        for (int i = 0; i < acceptableFileEndings.Length; i++)
+        {
+            if (file.EndsWith('.'+acceptableFileEndings[i]))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void OnChoiceSelected(object sender, int e)
@@ -35,7 +50,7 @@ public class DirectoryManager : MonoBehaviour
         {
             string selected = dirs[e];
 
-            if (selected != backString && !selected.EndsWith(".txt") && !selected.Contains("CORE files"))
+            if (selected != backString && !AcceptableFile(selected) && !selected.Contains("CORE files"))
             {
                 _currentPath += @"\"+dirs[e];
                 OpenDirectoryScreen();
@@ -43,6 +58,10 @@ public class DirectoryManager : MonoBehaviour
             else if (selected.EndsWith(".txt"))
             {
                 DisplayTxtFile(_currentPath + @"\"+dirs[e], dirs[e]);
+            }
+            else if (selected.EndsWith(".mp3"))
+            {
+                CMDManager.Instance.tBehaviour.StartPlaying(_currentPath+"/"+selected);
             }
             else if (selected.Contains("CORE files"))
             {
@@ -111,7 +130,7 @@ public class DirectoryManager : MonoBehaviour
 
         foreach (var file in f)
         {
-            if (file.EndsWith(".txt"))
+            if (AcceptableFile(file))
             {
                 files.Add(file);
             }

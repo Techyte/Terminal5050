@@ -13,15 +13,17 @@ public class CameraController : MonoBehaviour
     [Header("Camera Adjustment Controls")]
     [SerializeField] private PlayerMovement playerController;
     [SerializeField] private float defaultFOV;
-    [SerializeField] private float FOVChangeSpeed;
-    [SerializeField] private float tiltSpeed;
+    [SerializeField] private float viewBobIntensity = 0.05f;
+    [SerializeField] private float viewBobSpeed = 14f;
 
     private Camera thisCam;
+    
+    float defaultPosY = 0;
+    float timer = 0;
     
     private float xRotation;
     private float yRotation;
     private float zRotation;
-    private float fov;
 
     private void Awake()
     {
@@ -32,8 +34,7 @@ public class CameraController : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-
-        fov = defaultFOV;
+        defaultPosY = transform.localPosition.y;
     }
 
     private void Update()
@@ -49,9 +50,26 @@ public class CameraController : MonoBehaviour
         xRotation -= mouseY;
         xRotation = Mathf.Clamp(xRotation, -clampAngle, clampAngle);
 
-        thisCam.fieldOfView = fov;
         transform.rotation = Quaternion.Euler(xRotation, yRotation, zRotation);
         orientation.rotation = Quaternion.Euler(0, yRotation, 0);
+        
+        // We are grounded, so recalculate move direction based on axes
+        float curSpeedX = Input.GetAxis("Vertical");
+        float curSpeedY = Input.GetAxis("Horizontal");
+        Vector3 moveDirection = (Vector3.forward * curSpeedX) + (Vector3.right * curSpeedY);
+        
+        if(Mathf.Abs(moveDirection.x) > 0.1f || Mathf.Abs(moveDirection.z) > 0.1f)
+        {
+            //Player is moving
+            timer += Time.deltaTime * viewBobSpeed;
+            transform.localPosition = new Vector3(transform.localPosition.x, defaultPosY + Mathf.Sin(timer) * viewBobIntensity, transform.localPosition.z);
+        }
+        else
+        {
+            //Idle
+            timer = 0;
+            transform.localPosition = new Vector3(transform.localPosition.x, Mathf.Lerp(transform.localPosition.y, defaultPosY, Time.deltaTime * viewBobSpeed), transform.localPosition.z);
+        }
     }
     
     public void ToggleCursorMode()
