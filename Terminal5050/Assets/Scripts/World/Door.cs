@@ -9,6 +9,7 @@ public class Door : MonoBehaviour
     [SerializeField] private Transform doorObject;
     [SerializeField] private float speed;
     public bool open;
+    public int powerLoad = 50;
 
     public void Toggle()
     {

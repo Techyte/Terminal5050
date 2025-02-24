@@ -89,9 +89,16 @@ public class TerminalBehaviour : MonoBehaviour
                 break;
             case "door":
                 CMDManager.Instance.StartProcess();
-                Output($"Toggling door {parts[1]}");
-                DoorManager.Instance.ToggleDoor(parts[1]);
-                beep.Play();
+                if (parts.Length > 1)
+                {
+                    Output($"Toggling door {parts[1]}");
+                    DoorManager.Instance.ToggleDoor(parts[1]);
+                    beep.Play();
+                }
+                else
+                {
+                    Output($"Please provide a door to toggle");
+                }
                 CMDManager.Instance.StopProcess();
                 break;
             case "stopspeaker":

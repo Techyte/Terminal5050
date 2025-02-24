@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(AudioSource))]
@@ -19,5 +21,13 @@ public class Speaker : MonoBehaviour
     public void StopPlaying()
     {
         _audioSource.Stop();
+    }
+
+    private void Update()
+    {
+        if (SpeakerManager.Instance.playing && !_audioSource.isPlaying)
+        {
+            SpeakerManager.Instance.StopPlaying();
+        }
     }
 }

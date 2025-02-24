@@ -11,6 +11,8 @@ public class SpeakerManager : MonoBehaviour
 
     private List<Speaker> _speakers;
 
+    public bool playing;
+
     private void Awake()
     {
         Instance = this;
@@ -24,15 +26,14 @@ public class SpeakerManager : MonoBehaviour
         {
             _speakers[i].StopPlaying();
         }
+
+        playing = false;
     }
 
     public void StartPlaying(string source)
     {
         string path = Path.Combine(Application.persistentDataPath, source);
         string uri = "file://" + path;
-        
-        Debug.Log(uri);
-        Debug.Log(source);
 
         StartCoroutine(LoadAndPlay(uri));
     }
@@ -55,6 +56,8 @@ public class SpeakerManager : MonoBehaviour
                 {
                     _speakers[i].StartPlayingNew(clip);
                 }
+
+                playing = true;
             }
         }
     }
