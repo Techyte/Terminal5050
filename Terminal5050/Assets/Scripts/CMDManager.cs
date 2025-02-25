@@ -21,7 +21,6 @@ public class CMDManager : MonoBehaviour
     [SerializeField] private float fadeSpeed;
     [SerializeField] private AudioSource[] allSources;
     public TerminalBehaviour tBehaviour;
-    public DirectoryManager dManager;
 
     public string terminalName = "Terminal5050";
 
@@ -108,7 +107,6 @@ public class CMDManager : MonoBehaviour
         
         StopAllCoroutines();
         tBehaviour.StopAll();
-        dManager.StopAll();
         
         Output("Canceled");
         StopProcess();

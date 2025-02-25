@@ -26,17 +26,6 @@ public class DoorManager : MonoBehaviour
     {
         if (_doors.TryGetValue(id, out Door door))
         {
-            if (PowerManager.Instance.currentLoad + door.powerLoad > PowerManager.Instance.maximumLoad && !door.open)
-            {
-                foreach (var resetDoor in _doors.Values)
-                {
-                    resetDoor.open = false;
-                    PowerManager.Instance.LoadReduced("Door " + resetDoor.id);
-                }
-
-                return;
-            }
-            
             door.Toggle();
             if (door.open)
             {
@@ -45,6 +34,17 @@ public class DoorManager : MonoBehaviour
             else
             {
                 PowerManager.Instance.LoadReduced("Door " + id);
+            }
+        }
+    }
+
+    public void CloseAllDoors()
+    {
+        foreach (var resetDoor in _doors.Values)
+        {
+            if (resetDoor.open)
+            {
+                ToggleDoor(resetDoor.id);
             }
         }
     }

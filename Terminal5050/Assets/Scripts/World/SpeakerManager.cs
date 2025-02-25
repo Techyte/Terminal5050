@@ -1,12 +1,11 @@
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Networking;
 
 public class SpeakerManager : MonoBehaviour
 {
+    [SerializeField] private AudioSource beep;
+    [SerializeField] private AudioClip poweringDown;
     public static SpeakerManager Instance;
 
     private List<Speaker> _speakers;
@@ -18,6 +17,36 @@ public class SpeakerManager : MonoBehaviour
         Instance = this;
 
         _speakers = FindObjectsOfType<Speaker>().ToList();
+        
+        CMDManager.Instance.OnChoiceSelected += OnChoiceSelected;
+    }
+
+    private void OnChoiceSelected(object sender, int e)
+    {
+        if (sender is SpeakerManager)
+        {
+            AudioClip selected = clips[e];
+            
+            StartPlaying(selected);
+            
+            beep.Play();
+        }
+    }
+
+    private AudioClip[] clips;
+    private List<string> clipNames = new List<string>();
+
+    public void OpenSpeakerScreen()
+    {
+        clipNames.Clear();
+        clips = Resources.LoadAll<AudioClip>("Music");
+
+        foreach (var clip in clips)
+        {
+            clipNames.Add(clip.name+".mp3");
+        }
+        
+        CMDManager.Instance.OutputChoice(clipNames.ToArray(), "Select Sound to play", this);
     }
 
     public void StopPlaying()
@@ -28,37 +57,29 @@ public class SpeakerManager : MonoBehaviour
         }
 
         playing = false;
+        
+        PowerManager.Instance.LoadReduced("Speakers");
     }
 
-    public void StartPlaying(string source)
+    public void StartPlaying(AudioClip clip)
     {
-        string path = Path.Combine(Application.persistentDataPath, source);
-        string uri = "file://" + path;
-
-        StartCoroutine(LoadAndPlay(uri));
-    }
-
-    IEnumerator LoadAndPlay(string uri)
-    {
-        using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip(uri, AudioType.MPEG))
+        for (int i = 0; i < _speakers.Count; i++)
         {
-            yield return www.SendWebRequest();
+            _speakers[i].StartPlayingNew(clip);
+        }
 
-            if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
-            {
-                Debug.LogError("Error: " + www.error);
-            }
-            else
-            {
-                AudioClip clip = DownloadHandlerAudioClip.GetContent(www);
+        playing = true;
+        
+        CMDManager.Instance.Output($"Playing {clip.name}.mp3");
+        
+        PowerManager.Instance.LoadIncreased("Speakers", 15);
+    }
 
-                for (int i = 0; i < _speakers.Count; i++)
-                {
-                    _speakers[i].StartPlayingNew(clip);
-                }
-
-                playing = true;
-            }
+    public void PowerOverload()
+    {
+        for (int i = 0; i < _speakers.Count; i++)
+        {
+            _speakers[i].StartPlayingNew(poweringDown);
         }
     }
 }

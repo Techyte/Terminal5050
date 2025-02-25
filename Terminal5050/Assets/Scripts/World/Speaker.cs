@@ -14,18 +14,24 @@ public class Speaker : MonoBehaviour
 
     public void StartPlayingNew(AudioClip clip)
     {
+        StopAllCoroutines();
         _audioSource.clip = clip;
         _audioSource.Play();
+        StartCoroutine(EndAfter(clip.length));
+        Debug.Log(clip.length);
     }
 
     public void StopPlaying()
     {
+        StopAllCoroutines();
         _audioSource.Stop();
     }
 
-    private void Update()
+    private IEnumerator EndAfter(float duration)
     {
-        if (SpeakerManager.Instance.playing && !_audioSource.isPlaying)
+        yield return new WaitForSeconds(duration);
+        Debug.Log("stopping");
+        if (SpeakerManager.Instance.playing)
         {
             SpeakerManager.Instance.StopPlaying();
         }

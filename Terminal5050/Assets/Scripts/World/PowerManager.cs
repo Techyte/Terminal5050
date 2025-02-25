@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -74,7 +73,14 @@ public class PowerManager : MonoBehaviour
                 break;
             case > 1:
                 statusText.text = "OVER";
+                Overloaded();
                 break;
         }
+    }
+
+    private void Overloaded()
+    {
+        DoorManager.Instance.CloseAllDoors();
+        SpeakerManager.Instance.PowerOverload();
     }
 }

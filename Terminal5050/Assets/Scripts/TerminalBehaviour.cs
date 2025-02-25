@@ -74,10 +74,10 @@ public class TerminalBehaviour : MonoBehaviour
                 Output($"Performing system diagnostics...");
                 StartCoroutine(Diagnostics());
                 break;
-            case "cd":
+            case "speaker":
                 CMDManager.Instance.StartProcess();
                 Output("\n</color>\u2191 \u2193 and \u21B2 to browse <color=grey>");
-                CMDManager.Instance.dManager.OpenDirectoryScreen();
+                SpeakerManager.Instance.OpenSpeakerScreen();
                 beep.Play();
                 CMDManager.Instance.StopProcess();
                 break;
@@ -165,10 +165,5 @@ public class TerminalBehaviour : MonoBehaviour
         error.PlayOneShot(errorClip);
         Output("Could not retrieve core info, please try again later");
         CMDManager.Instance.StopProcess();
-    }
-
-    public void StartPlaying(string location)
-    {
-        SpeakerManager.Instance.StartPlaying(location);
     }
 }

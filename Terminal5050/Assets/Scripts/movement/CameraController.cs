@@ -9,6 +9,7 @@ public class CameraController : MonoBehaviour
     [SerializeField] private float clampAngle = 85f;
 
     [SerializeField] private Transform orientation;
+    [SerializeField] private Transform itemDisplay;
 
     [Header("Camera Adjustment Controls")]
     [SerializeField] private PlayerMovement playerController;
@@ -19,6 +20,7 @@ public class CameraController : MonoBehaviour
     private Camera thisCam;
     
     float defaultPosY = 0;
+    float itemDefaultPosY = 0;
     float timer = 0;
     
     private float xRotation;
@@ -35,6 +37,7 @@ public class CameraController : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         defaultPosY = transform.localPosition.y;
+        itemDefaultPosY = itemDisplay.localPosition.y;
     }
 
     private void Update()
@@ -62,13 +65,21 @@ public class CameraController : MonoBehaviour
         {
             //Player is moving
             timer += Time.deltaTime * viewBobSpeed;
-            transform.localPosition = new Vector3(transform.localPosition.x, defaultPosY + Mathf.Sin(timer) * viewBobIntensity, transform.localPosition.z);
+            transform.localPosition = new Vector3(transform.localPosition.x,
+                defaultPosY + Mathf.Sin(timer) * viewBobIntensity, transform.localPosition.z);
+            itemDisplay.localPosition = new Vector3(itemDisplay.localPosition.x,
+                itemDefaultPosY + Mathf.Sin(timer) * viewBobIntensity/2, itemDisplay.localPosition.z);
         }
         else
         {
             //Idle
             timer = 0;
-            transform.localPosition = new Vector3(transform.localPosition.x, Mathf.Lerp(transform.localPosition.y, defaultPosY, Time.deltaTime * viewBobSpeed), transform.localPosition.z);
+            transform.localPosition = new Vector3(transform.localPosition.x,
+                Mathf.Lerp(transform.localPosition.y, defaultPosY, Time.deltaTime * viewBobSpeed),
+                transform.localPosition.z);
+            itemDisplay.localPosition = new Vector3(itemDisplay.localPosition.x,
+                Mathf.Lerp(itemDisplay.localPosition.y, itemDefaultPosY, Time.deltaTime * viewBobSpeed),
+                itemDisplay.localPosition.z);
         }
     }
     
