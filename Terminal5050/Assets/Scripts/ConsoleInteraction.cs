@@ -34,6 +34,9 @@ public class ConsoleInteraction : MonoBehaviour
                         initRot = playerCam.rotation;
                         Cursor.lockState = CursorLockMode.None;
                         Cursor.visible = true;
+                        playerCam.parent.GetComponent<MoveCamera>().cancel = true;
+                        playerCam.GetComponent<CameraController>().cancel = true;
+                        player.cancel = true;
                     }
                 }
                 else
@@ -60,15 +63,6 @@ public class ConsoleInteraction : MonoBehaviour
         if (_interacting)
         {
             LerpCam();
-            playerCam.parent.GetComponent<MoveCamera>().cancel = true;
-            playerCam.GetComponent<CameraController>().cancel = true;
-            player.cancel = true;
-        }
-        else
-        {
-            playerCam.parent.GetComponent<MoveCamera>().cancel = false;
-            playerCam.GetComponent<CameraController>().cancel = false;
-            player.cancel = false;
         }
 
         if (_returning)
