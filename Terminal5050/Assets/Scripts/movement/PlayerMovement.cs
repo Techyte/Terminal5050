@@ -60,7 +60,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (transform.position.y < -60)
         {
-            transform.position = Vector3.zero + Vector3.up * 0.5f;
+            transform.position = respawn.position + Vector3.up * 0.5f;
             rb.velocity = Vector3.zero;
         }
     }
