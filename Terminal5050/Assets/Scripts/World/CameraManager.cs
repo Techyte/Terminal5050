@@ -1,12 +1,13 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class CameraManager : MonoBehaviour
 {
+    public static CameraManager Instance;
+    
     [SerializeField] private float rotationSpeed;
     [SerializeField] private float rotationRange;
-    [SerializeField] private SecurityCamera defaultCam;
+    [SerializeField] private SecurityCamera[] defaultCam;
     
     private List<SecurityCamera> _cams = new List<SecurityCamera>();
 
@@ -18,7 +19,11 @@ public class CameraManager : MonoBehaviour
 
     private void Awake()
     {
-        AddCam(defaultCam);
+        Instance = this;
+        foreach (var cam in defaultCam)
+        {
+            AddCam(cam);
+        }
         SwitchToCam(0);
     }
 
@@ -36,6 +41,12 @@ public class CameraManager : MonoBehaviour
         _cams[index].Enable();
         _activeCam = _cams[index];
         _activeIndex = index;
+    }
+
+    public void Cycle()
+    {
+        int newIndex = (_activeIndex + 1) % _cams.Count;
+        SwitchToCam(newIndex);
     }
 
     private void Update()
