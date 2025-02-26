@@ -1,4 +1,3 @@
-using Unity.Mathematics;
 using UnityEngine;
 
 public class SecurityCamera : MonoBehaviour
@@ -7,18 +6,16 @@ public class SecurityCamera : MonoBehaviour
 
     private Camera _cam;
     private float _rot;
-    private Quaternion _originRot;
 
     private void Awake()
     {
-        _originRot = transform.rotation;
         _cam = GetComponent<Camera>();
     }
 
     private void Update()
     {
         _cam.enabled = on;
-        transform.rotation = _originRot * quaternion.Euler(Vector3.up * _rot);
+        transform.parent.rotation = Quaternion.Euler(0, _rot, 0);
     }
 
     public void Rotation(float newRot)
