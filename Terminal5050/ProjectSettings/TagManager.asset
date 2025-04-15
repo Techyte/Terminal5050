@@ -14,8 +14,8 @@ TagManager:
   - Ground
   - ManualDoorInteract
   - cycle
-  - 
-  - 
+  - Wall
+  - Interactable
   - 
   - 
   - 

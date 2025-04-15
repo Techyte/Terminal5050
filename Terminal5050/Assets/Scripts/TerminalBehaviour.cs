@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using Random = UnityEngine.Random;
 
 public class TerminalBehaviour : MonoBehaviour
@@ -12,8 +13,6 @@ public class TerminalBehaviour : MonoBehaviour
     {
         return !CMDManager.Instance.creepyOutputting;
     }));
-
-    private bool _computerAwake;
 
     private void Start()
     {
@@ -28,14 +27,20 @@ public class TerminalBehaviour : MonoBehaviour
         }
     }
 
-    public void Wake()
+    public void PlayerPingedDoor(string id)
     {
-        _computerAwake = true;
+        Output($"Door Pinged with id: {id}", Color.yellow);
+        beep.Play();
     }
 
     public void Output(string output, bool arrow = false)
     {
         CMDManager.Instance.Output(output, arrow);
+    }
+
+    public void Output(string output, Color color)
+    {
+        CMDManager.Instance.Output(output, color);
     }
     
     public void HandleCommand(string command)

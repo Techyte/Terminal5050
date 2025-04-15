@@ -1,15 +1,17 @@
-using System;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class ManualDoorInteractionManager : MonoBehaviour
 {
     [SerializeField] private Transform playerCam;
+    [SerializeField] private GameObject terminalOutput;
     [SerializeField] private PlayerMovement player;
     [SerializeField] private float maxDistance;
     [SerializeField] private Image interact;
     [SerializeField] private LayerMask manualDoorLayer;
     [SerializeField] private LayerMask cycleCameraLayer;
+    [SerializeField] private LayerMask interactableLayer;
     
     private void Update()
     {
@@ -27,6 +29,18 @@ public class ManualDoorInteractionManager : MonoBehaviour
             if (Input.GetMouseButtonDown(0))
             {
                 CameraManager.Instance.Cycle();
+            }
+        }else if (Physics.Raycast(playerCam.transform.position, playerCam.transform.forward, out hit, maxDistance, interactableLayer))
+        {
+            Interactable interactHit = hit.transform.gameObject.GetComponent<Interactable>();
+            if (interactHit)
+            {
+                interact.gameObject.SetActive(true);
+                if (Input.GetMouseButtonDown(0))
+                {
+                    interactHit.Interact();
+                    EventSystem.current.SetSelectedGameObject(terminalOutput);
+                }
             }
         }
         else

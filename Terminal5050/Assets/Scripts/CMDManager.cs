@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using None;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
@@ -219,7 +220,6 @@ public class CMDManager : MonoBehaviour
 
         if (!Outputting)
         {
-            Debug.LogWarning("No process running, creating process for output");
             StartProcess();
         }
 
@@ -235,6 +235,32 @@ public class CMDManager : MonoBehaviour
         else
         {
             text.text = arrow ? text.text + "\n" + "> " + output : text.text + "\n" + output;
+        }
+
+        if (!wasOutputting)
+        {
+            StopProcess();
+        }
+    }
+
+    public void Output(string output, Color color)
+    {
+        bool wasOutputting = Outputting;
+
+        if (!Outputting)
+        {
+            StartProcess();
+        }
+
+        output = $"<color=#{color.ToHexString()}>" + output + "</color>";
+
+        if (text.text == string.Empty)
+        {
+            text.text = output;
+        }
+        else
+        {
+            text.text = text.text + "\n" + output;
         }
 
         if (!wasOutputting)
