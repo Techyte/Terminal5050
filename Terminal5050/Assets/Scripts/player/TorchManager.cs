@@ -1,13 +1,11 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 public class TorchManager : MonoBehaviour
 {
     [SerializeField] private Light torchLight;
-    [SerializeField] private float drainPerSecond;
-    [SerializeField] private Image chargeDisplay;
 
     private Inventory _inventory;
+    private PersonalPowerManager _pManager;
 
     private bool _on;
 
@@ -16,6 +14,7 @@ public class TorchManager : MonoBehaviour
     private void Awake()
     {
         _inventory = GetComponent<Inventory>();
+        _pManager = GetComponent<PersonalPowerManager>();
     }
 
     private void Update()
@@ -29,27 +28,35 @@ public class TorchManager : MonoBehaviour
             _torch = null;
         }
         
+        torchLight.gameObject.SetActive(_on);
+
         if (_torch == null)
+        {
+            _on = false;
             return;
-        
-        if (Input.GetMouseButtonDown(0) && _torch.charge >= 0)
+        }
+
+        if (Input.GetMouseButtonDown(0) && _pManager.charge >= 0)
         {
             _on = !_on;
+        }
+
+        if (_on)
+        {
+            _pManager.charge -= _torch.drainPerSecond * Time.deltaTime;
         }
         
         torchLight.gameObject.SetActive(_on);
 
         if (_on)
         {
-            _torch.charge -= drainPerSecond * Time.deltaTime;
+            _pManager.charge -= _torch.drainPerSecond * Time.deltaTime;
         }
 
-        if (_torch.charge <= 0)
+        if (_pManager.charge <= 0)
         {
             _on = false;
-            _torch.charge = 0;
+            _pManager.charge = 0;
         }
-
-        chargeDisplay.transform.localScale = new Vector2(_torch.charge / _torch.maxCharge, 1);
     }
 }

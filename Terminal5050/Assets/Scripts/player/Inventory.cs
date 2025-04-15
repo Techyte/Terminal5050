@@ -5,6 +5,7 @@ public class Inventory : MonoBehaviour
     [SerializeField] private Transform itemDisplayLocation;
 
     [SerializeField] private ItemTemplate torchTemplate;
+    [SerializeField] private ItemTemplate scannerTemplate;
     [SerializeField] private CameraController controller;
     
     public int selectedIndex = 0;
@@ -15,9 +16,14 @@ public class Inventory : MonoBehaviour
 
     private void Awake()
     {
-        Torch torch = new Torch(50, 50);
+        Torch torch = new Torch(1);
         torch.template = torchTemplate;
         smallItems[0] = torch;
+        
+        Scanner scanner = new Scanner(1);
+        scanner.template = scannerTemplate;
+        smallItems[1] = scanner;
+        
         UpdateSelected();
     }
 
@@ -67,6 +73,6 @@ public class Inventory : MonoBehaviour
 
         _currentItemDisplay = Instantiate(smallItems[selectedIndex].template.model, itemDisplayLocation.position,
             Quaternion.identity, itemDisplayLocation);
-        _currentItemDisplay.transform.localRotation = Quaternion.identity;
+        _currentItemDisplay.transform.localRotation = smallItems[selectedIndex].template.model.transform.rotation;
     }
 }

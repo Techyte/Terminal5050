@@ -80,6 +80,9 @@ SubShader{
 		uniform float4		_ClipRect;
 		uniform float		_MaskSoftnessX;
 		uniform float		_MaskSoftnessY;
+		
+		float _UIMaskSoftnessX;
+		float _UIMaskSoftnessY;
 
 		float2 UnpackUV(float uv)
 		{

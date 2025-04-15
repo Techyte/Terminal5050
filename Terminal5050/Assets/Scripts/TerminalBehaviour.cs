@@ -8,6 +8,7 @@ public class TerminalBehaviour : MonoBehaviour
     [SerializeField] private AudioSource beep;
     [SerializeField] private AudioSource error;
     [SerializeField] private AudioClip errorClip;
+    [SerializeField] private GameObject terminalOutput;
     
     private WaitUntil _spookyFinish = new WaitUntil((() =>
     {
@@ -30,6 +31,7 @@ public class TerminalBehaviour : MonoBehaviour
     public void PlayerPingedDoor(string id)
     {
         Output($"Door Pinged with id: {id}", Color.yellow);
+        EventSystem.current.SetSelectedGameObject(terminalOutput);
         beep.Play();
     }
 

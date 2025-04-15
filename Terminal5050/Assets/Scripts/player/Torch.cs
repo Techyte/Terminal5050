@@ -1,11 +1,9 @@
 public class Torch : Item
 {
-    public float charge;
-    public float maxCharge;
+    public float drainPerSecond;
 
-    public Torch(float charge, float maxCharge)
+    public Torch(float drainPerSecond)
     {
-        this.charge = charge;
-        this.maxCharge = maxCharge;
+        this.drainPerSecond = drainPerSecond;
     }
 }
