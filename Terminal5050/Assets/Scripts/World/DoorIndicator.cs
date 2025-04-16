@@ -28,14 +28,15 @@ public class DoorIndicator : Interactable
     private IEnumerator PingDoor(PersonalPowerManager pManager)
     {
         ActionBar.Instance.NewOutput("Attempting to ping door back to base");
-        yield return new WaitForSeconds(1);
         Inventory inventory = pManager.GetComponent<Inventory>();
-        if (pManager.charge - ((Scanner)inventory.smallItems[inventory.selectedIndex]).powerUsageCost <= 0)
+        Scanner scanner = (Scanner)inventory.smallItems[inventory.selectedIndex];
+        yield return new WaitForSeconds(1);
+        if (pManager.charge - scanner.powerUsageCost <= 0)
         {
             ActionBar.Instance.NewOutput("Insufficient power", Color.red);
             yield break;
         }
-        pManager.charge -= ((Scanner)inventory.smallItems[inventory.selectedIndex]).powerUsageCost;
+        pManager.charge -= scanner.powerUsageCost;
         CMDManager.Instance.tBehaviour.PlayerPingedDoor(sourceDoor.id);
         ActionBar.Instance.NewOutput("Ping successful");
         inventory.Beep.Play();

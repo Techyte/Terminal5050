@@ -11,8 +11,6 @@ public class CameraManager : MonoBehaviour
     [SerializeField] private float rotationRange;
     [SerializeField] private SecurityCamera[] defaultCam;
     [SerializeField] private float cameraPowerDrain;
-    [SerializeField] private RenderTexture renderTexture;
-    [SerializeField] private Texture blankTexture;
     [SerializeField] private RawImage image;
     
     private List<SecurityCamera> _cams = new List<SecurityCamera>();
@@ -30,8 +28,12 @@ public class CameraManager : MonoBehaviour
         Instance = this;
         foreach (var cam in defaultCam)
         {
-            AddCam(cam);
+            cam.Trigger();
         }
+    }
+
+    private void Start()
+    {
         SwitchToCam(0);
     }
 
@@ -63,13 +65,13 @@ public class CameraManager : MonoBehaviour
 
         if (_on)
         {
-            image.texture = renderTexture;
+            image.color = Color.white;
             PowerManager.Instance.NewDrain("Cameras", cameraPowerDrain);
         }
         else
         {
             PowerManager.Instance.RemoveDrain("Cameras");
-            image.texture = blankTexture;
+            image.color = Color.black;
         }
     }
 

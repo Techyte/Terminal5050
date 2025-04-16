@@ -39,7 +39,7 @@ public class ActionBar : MonoBehaviour
 
     public void NewOutput(string content)
     {
-        NewOutput(content, Color.white);
+        NewOutput(content+"\n", Color.white);
         StopAllCoroutines();
         _on = true;
         StartCoroutine(FadeCountdown());

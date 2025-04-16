@@ -45,7 +45,6 @@ public class PowerManager : MonoBehaviour
 
     public void ChangeCharge(float amount)
     {
-        Debug.Log("changing charge");
         currentCharge += amount;
     }
 
