@@ -41,7 +41,7 @@ public class ManualDoorInteractionManager : MonoBehaviour
             if (interactHit)
             {
                 interact.gameObject.SetActive(true);
-                if (Input.GetMouseButtonDown(0) && _inventory.smallItems[_inventory.selectedIndex] is Scanner)
+                if (Input.GetMouseButtonDown(0))
                 {
                     interactHit.Interact(GetComponent<PersonalPowerManager>());
                 }

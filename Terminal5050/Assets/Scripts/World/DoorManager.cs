@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -28,13 +29,17 @@ public class DoorManager : MonoBehaviour
             door.Toggle();
             if (door.open)
             {
-                PowerManager.Instance.LoadIncreased("Door " + id, door.powerLoad);
-            }
-            else
-            {
-                PowerManager.Instance.LoadReduced("Door " + id);
+                PowerManager.Instance.NewDrain($"Door {id}", 5);
+                PowerManager.Instance.ChangeCharge(-5);
+                StartCoroutine(DisplayDoorDrain(id));
             }
         }
+    }
+
+    private IEnumerator DisplayDoorDrain(string doorId)
+    {
+        yield return new WaitForSeconds(1);
+        PowerManager.Instance.RemoveDrain($"Door {doorId}");
     }
 
     public void CloseAllDoors()

@@ -7,6 +7,11 @@ public class Inventory : MonoBehaviour
     [SerializeField] private ItemTemplate torchTemplate;
     [SerializeField] private ItemTemplate scannerTemplate;
     [SerializeField] private CameraController controller;
+    [SerializeField] private AudioSource beep;
+    [SerializeField] private AudioSource click;
+
+    public AudioSource Beep => beep;
+    public AudioSource Click => click;
     
     public int selectedIndex = 0;
     public Item largeItem;

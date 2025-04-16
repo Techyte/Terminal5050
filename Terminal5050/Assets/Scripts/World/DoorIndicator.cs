@@ -14,7 +14,15 @@ public class DoorIndicator : Interactable
 
     public override void Interact(PersonalPowerManager pManager)
     {
-        StartCoroutine(PingDoor(pManager));
+        Inventory inventory = pManager.GetComponent<Inventory>();
+        if (inventory.smallItems[inventory.selectedIndex] is Scanner)
+        {
+            StartCoroutine(PingDoor(pManager));
+        }
+        else
+        {
+            ActionBar.Instance.NewOutput("Scanner needed");
+        }
     }
 
     private IEnumerator PingDoor(PersonalPowerManager pManager)
@@ -29,6 +37,7 @@ public class DoorIndicator : Interactable
         }
         pManager.charge -= ((Scanner)inventory.smallItems[inventory.selectedIndex]).powerUsageCost;
         CMDManager.Instance.tBehaviour.PlayerPingedDoor(sourceDoor.id);
-        ActionBar.Instance.NewOutput("Ping successful", Color.yellow);
+        ActionBar.Instance.NewOutput("Ping successful");
+        inventory.Beep.Play();
     }
 }

@@ -18,7 +18,6 @@ public class Speaker : MonoBehaviour
         _audioSource.clip = clip;
         _audioSource.Play();
         StartCoroutine(EndAfter(clip.length));
-        Debug.Log(clip.length);
     }
 
     public void StopPlaying()

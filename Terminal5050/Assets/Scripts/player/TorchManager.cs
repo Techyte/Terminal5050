@@ -39,6 +39,7 @@ public class TorchManager : MonoBehaviour
         if (Input.GetMouseButtonDown(0) && _pManager.charge >= 0)
         {
             _on = !_on;
+            _inventory.Click.Play();
         }
 
         if (_on)

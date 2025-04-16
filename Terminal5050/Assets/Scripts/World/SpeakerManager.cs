@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -6,6 +7,7 @@ public class SpeakerManager : MonoBehaviour
 {
     [SerializeField] private AudioSource beep;
     [SerializeField] private AudioClip poweringDown;
+    [SerializeField] private float speakerPowerDrainPerSecond = 1;
     public static SpeakerManager Instance;
 
     private List<Speaker> _speakers;
@@ -19,6 +21,14 @@ public class SpeakerManager : MonoBehaviour
         _speakers = FindObjectsOfType<Speaker>().ToList();
         
         CMDManager.Instance.OnChoiceSelected += OnChoiceSelected;
+    }
+
+    private void Update()
+    {
+        if (playing)
+        {
+            PowerManager.Instance.ChangeCharge(-speakerPowerDrainPerSecond * Time.deltaTime);
+        }
     }
 
     private void OnChoiceSelected(object sender, int e)
@@ -55,10 +65,10 @@ public class SpeakerManager : MonoBehaviour
         {
             _speakers[i].StopPlaying();
         }
+        
+        PowerManager.Instance.RemoveDrain("Speakers");
 
         playing = false;
-        
-        PowerManager.Instance.LoadReduced("Speakers");
     }
 
     public void StartPlaying(AudioClip clip)
@@ -68,11 +78,11 @@ public class SpeakerManager : MonoBehaviour
             _speakers[i].StartPlayingNew(clip);
         }
 
+        PowerManager.Instance.NewDrain("Speakers", speakerPowerDrainPerSecond);
+        
         playing = true;
         
         CMDManager.Instance.Output($"Playing {clip.name}.mp3");
-        
-        PowerManager.Instance.LoadIncreased("Speakers", 15);
     }
 
     public void PowerOverload()

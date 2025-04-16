@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CameraManager : MonoBehaviour
 {
@@ -8,6 +10,10 @@ public class CameraManager : MonoBehaviour
     [SerializeField] private float rotationSpeed;
     [SerializeField] private float rotationRange;
     [SerializeField] private SecurityCamera[] defaultCam;
+    [SerializeField] private float cameraPowerDrain;
+    [SerializeField] private RenderTexture renderTexture;
+    [SerializeField] private Texture blankTexture;
+    [SerializeField] private RawImage image;
     
     private List<SecurityCamera> _cams = new List<SecurityCamera>();
 
@@ -16,6 +22,8 @@ public class CameraManager : MonoBehaviour
 
     private float _rotation = 0;
     private bool _rotDirection;
+
+    private bool _on;
 
     private void Awake()
     {
@@ -49,11 +57,31 @@ public class CameraManager : MonoBehaviour
         SwitchToCam(newIndex);
     }
 
+    public void ToggleCameras()
+    {
+        _on = !_on;
+
+        if (_on)
+        {
+            image.texture = renderTexture;
+            PowerManager.Instance.NewDrain("Cameras", cameraPowerDrain);
+        }
+        else
+        {
+            PowerManager.Instance.RemoveDrain("Cameras");
+            image.texture = blankTexture;
+        }
+    }
+
     private void Update()
     {
-        if (!_activeCam)
+        if (!_activeCam || !_on)
         {
             return;
+        }
+        else
+        {
+            PowerManager.Instance.ChangeCharge(cameraPowerDrain * Time.deltaTime);
         }
         
         if (_rotDirection)

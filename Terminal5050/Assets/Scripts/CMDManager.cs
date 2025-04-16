@@ -5,7 +5,6 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
-using Random = UnityEngine.Random;
 
 public class CMDManager : MonoBehaviour
 {
@@ -21,6 +20,8 @@ public class CMDManager : MonoBehaviour
     [SerializeField] private Image fade;
     [SerializeField] private float fadeSpeed;
     [SerializeField] private AudioSource[] allSources;
+    [SerializeField] private GameObject powerInfoScreen;
+    [SerializeField] private TextMeshProUGUI powerInfoText;
     public TerminalBehaviour tBehaviour;
 
     public string terminalName = "Terminal5050";
@@ -40,6 +41,8 @@ public class CMDManager : MonoBehaviour
 
     private int currentChoiceIndex;
     private bool choosing;
+
+    private bool displayingPowerInfo;
 
     private void Awake()
     {
@@ -63,7 +66,7 @@ public class CMDManager : MonoBehaviour
             input.Select();
         }
 
-        if (UnityEngine.Input.GetKey(KeyCode.LeftControl) && UnityEngine.Input.GetKeyDown(KeyCode.C) && (Outputting || choosing))
+        if (UnityEngine.Input.GetKey(KeyCode.LeftControl) && UnityEngine.Input.GetKeyDown(KeyCode.C) && (Outputting || choosing || displayingPowerInfo))
         {
             StopAll();
             beep.Play();
@@ -102,9 +105,60 @@ public class CMDManager : MonoBehaviour
         }
     }
 
+    private void LateUpdate()
+    {
+        PowerInfo();
+    }
+
+    public void StartShowingPowerInfo()
+    {
+        displayingPowerInfo = true;
+    }
+
+    private void PowerInfo()
+    {
+        powerInfoScreen.SetActive(displayingPowerInfo);
+
+        if (displayingPowerInfo)
+        {
+            string output = "<b>Displaying Power Info:</b>\n";
+
+            float perSecondEstimate = 0;
+
+            foreach (var drain in PowerManager.Instance.drains)
+            {
+                perSecondEstimate += drain.Value;
+            }
+
+            output += "\n" +
+                      $"Maximum Power Capacity: {PowerManager.Instance.MaxCharge}\n" +
+                      $"Current Power Charge: {PowerManager.Instance.CurrentCharge}\n" +
+                      $"\n" +
+                      $"Estimate Of Remaining Time: {(Mathf.Approximately(perSecondEstimate, 0) ? "No Drain" : PowerManager.Instance.CurrentCharge / perSecondEstimate)}\n" +
+                      $"\n" +
+                      $"Power Drains:\n" +
+                      $"\n";
+
+            if (PowerManager.Instance.drains.Count != 0)
+            {
+                foreach (var drain in PowerManager.Instance.drains)
+                {
+                    output += drain.Key + ": " + drain.Value + "\n";
+                }
+            }
+            else
+            {
+                output += "None";
+            }
+
+            powerInfoText.text = output;
+        }
+    }
+
     public void StopAll()
     {
         choosing = false;
+        displayingPowerInfo = false;
         
         StopAllCoroutines();
         tBehaviour.StopAll();

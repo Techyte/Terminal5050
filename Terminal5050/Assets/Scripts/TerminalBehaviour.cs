@@ -59,22 +59,37 @@ public class TerminalBehaviour : MonoBehaviour
                        "tName {newName} - Change the terminal name\n" +
                        "tColour {newColour} - Change the terminal colour\n" +
                        "dig - Perform system diagnostics\n" +
-                       "cd - Browse system files\n\n" + 
                        "stopspeaker - Stop any sound comming from speakers\n\n" + 
-                        "control+C - Force stop current process");
+                       "power - Start reading and displaying current power information\n\n" + 
+                       "control+C - Force stop current process");
                 beep.Play();
                 CMDManager.Instance.StopProcess();
                 break;
             case "tName":
                 CMDManager.Instance.StartProcess();
-                Output($"Attempting to change the terminal name to {parts[1]}");
-                StartCoroutine(ChangeError());
+                if (parts.Length >= 2)
+                {
+                    Output($"Attempting to change the terminal name to {parts[1]}");
+                    StartCoroutine(ChangeError());
+                }
+                else
+                {
+                    Output($"Please supply a name to change to");
+                }
                 CMDManager.Instance.StopProcess();
                 break;
             case "tColour":
                 CMDManager.Instance.StartProcess();
-                Output($"Attempting to change the terminal color to {parts[1]}");
-                StartCoroutine(ChangeError());
+                if (parts.Length >= 2)
+                {
+                    Output($"Attempting to change the terminal color to {parts[1]}");
+                    StartCoroutine(ChangeError());
+                }
+                else
+                {
+                    Output($"Please supply a colour to change to");
+                }
+                CMDManager.Instance.StopProcess();
                 break;
             case "dig":
                 CMDManager.Instance.StartProcess();
@@ -112,6 +127,11 @@ public class TerminalBehaviour : MonoBehaviour
                 CMDManager.Instance.StartProcess();
                 Output($"Stopping all speakers");
                 SpeakerManager.Instance.StopPlaying();
+                CMDManager.Instance.StopProcess();
+                break;
+            case "power":
+                CMDManager.Instance.StartProcess();
+                CMDManager.Instance.StartShowingPowerInfo();
                 CMDManager.Instance.StopProcess();
                 break;
             default:
