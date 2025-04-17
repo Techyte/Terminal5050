@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class ManualDoorInteractionManager : MonoBehaviour
@@ -13,25 +12,39 @@ public class ManualDoorInteractionManager : MonoBehaviour
     [SerializeField] private LayerMask interactableLayer;
     private Inventory _inventory;
 
+    private Player _player;
+
     private void Awake()
     {
+        _player = GetComponent<Player>();
+        
         _inventory = GetComponent<Inventory>();
     }
     
     private void Update()
     {
+        if (!_player.local)
+            return;
+        
         RaycastHit hit;
+
+        bool wantToInteract = false;
+
+        wantToInteract = Input.GetMouseButtonDown(0);
+
+        bool interacted = false;
+        
         if (Physics.Raycast(playerCam.transform.position, playerCam.transform.forward, out hit, maxDistance, manualDoorLayer))
         {
-            interact.gameObject.SetActive(true);
-            if (Input.GetMouseButtonDown(0))
+            interacted = true;
+            if (wantToInteract)
             {
                 hit.transform.gameObject.GetComponent<ManualDoorInteract>().Interact();
             }
         }else if (Physics.Raycast(playerCam.transform.position, playerCam.transform.forward, out hit, maxDistance, cycleCameraLayer))
         {
-            interact.gameObject.SetActive(true);
-            if (Input.GetMouseButtonDown(0))
+            interacted = true;
+            if (wantToInteract)
             {
                 CameraManager.Instance.Cycle();
             }
@@ -40,16 +53,14 @@ public class ManualDoorInteractionManager : MonoBehaviour
             Interactable interactHit = hit.transform.gameObject.GetComponent<Interactable>();
             if (interactHit)
             {
-                interact.gameObject.SetActive(true);
-                if (Input.GetMouseButtonDown(0))
+                interacted = true;
+                if (wantToInteract)
                 {
                     interactHit.Interact(GetComponent<PersonalPowerManager>());
                 }
             }
         }
-        else
-        {
-            interact.gameObject.SetActive(false);
-        }
+        
+        interact.gameObject.SetActive(interacted);
     }
 }

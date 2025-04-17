@@ -53,13 +53,18 @@ public class WorldItem : Interactable
     public override void Interact(PersonalPowerManager pManager)
     {
         Inventory inventory = pManager.GetComponent<Inventory>();
+
+        bool local = pManager.GetComponent<Player>().local;
+        
         if (!inventory.TryGainItem(_item))
         {
-            ActionBar.Instance.NewOutput("Not enough space to pick up item", Color.red);
+            if (local)
+                ActionBar.Instance.NewOutput("Not enough space to pick up item", Color.red);
         }
         else
         {
-            ActionBar.Instance.NewOutput($"+1 {_item.template.name}");
+            if (local)
+                ActionBar.Instance.NewOutput($"+1 {_item.template.name}");
             Destroy(gameObject);
         }
     }

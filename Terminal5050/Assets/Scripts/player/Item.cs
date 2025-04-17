@@ -1,5 +1,3 @@
-using UnityEngine;
-
 public class Item
 {
     public ItemTemplate template;

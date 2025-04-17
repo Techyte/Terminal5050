@@ -29,9 +29,12 @@ public class CameraController : MonoBehaviour
     private float yRotation;
     private float zRotation;
 
+    private Player _player;
+    
     private void Awake()
     {
         thisCam = GetComponent<Camera>();
+        _player = playerController.GetComponent<Player>();
     }
 
     private void Start()
@@ -44,6 +47,16 @@ public class CameraController : MonoBehaviour
 
     private void Update()
     {
+        if (!_player.local)
+        {
+            thisCam.enabled = false;
+            thisCam.GetComponent<AudioListener>().enabled = false;
+            return;
+        }
+        
+        thisCam.enabled = true;
+        thisCam.GetComponent<AudioListener>().enabled = true;
+        
         if (cancel)
             return;
         

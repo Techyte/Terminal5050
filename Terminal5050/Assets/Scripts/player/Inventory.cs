@@ -24,9 +24,16 @@ public class Inventory : MonoBehaviour
 
     private GameObject _currentItemDisplay;
 
+    private Player _player;
+
     private void Awake()
     {
+        _player = GetComponent<Player>();
+        
         smallItems = new Item[smallCapacity];
+
+        smallItems[0] = new Torch(1, torchTemplate);
+        smallItems[1] = new Scanner(5, scannerTemplate);
         
         UpdateSelected();
     }
@@ -64,12 +71,18 @@ public class Inventory : MonoBehaviour
             UpdateSelected();
         }
 
-        if (Input.GetKeyDown(KeyCode.Q) && !Input.GetKeyDown(KeyCode.LeftControl) && smallItems[selectedIndex] != null)
+        bool wantToDrop = false;
+        bool dropLarge = false;
+
+        wantToDrop = Input.GetKeyDown(KeyCode.Q) && _player.local;
+        dropLarge = Input.GetKeyDown(KeyCode.LeftControl) && _player.local;
+
+        if (wantToDrop && !dropLarge && smallItems[selectedIndex] != null)
         {
             ThrowItem(false);
         }
 
-        if (Input.GetKeyDown(KeyCode.Q) && Input.GetKeyDown(KeyCode.LeftControl) && largeItem != null)
+        if (wantToDrop && dropLarge && largeItem != null)
         {
             ThrowItem(true);
         }

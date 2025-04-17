@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,14 +7,19 @@ public class ItemUIManager : MonoBehaviour
     [SerializeField] private Image[] smallSprites;
     
     private Inventory _inventory;
+    private Player _player;
 
     private void Awake()
     {
         _inventory = GetComponent<Inventory>();
+        _player = GetComponent<Player>();
     }
     
     private void Update()
     {
+        if (!_player.local)
+            return;
+        
         for (int i = 0; i < _inventory.smallItems.Length; i++)
         {
             if (_inventory.smallItems[i] != null)

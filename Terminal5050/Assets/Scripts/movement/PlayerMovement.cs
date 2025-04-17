@@ -31,9 +31,12 @@ public class PlayerMovement : MonoBehaviour
 
     private Vector3 _moveDirection;
 
+    private Player _player;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        _player = GetComponent<Player>();
         rb.freezeRotation = true;
     }
 
@@ -67,8 +70,11 @@ public class PlayerMovement : MonoBehaviour
 
     private void MyInput()
     {
-        _horizontalInput = Input.GetAxisRaw("Horizontal");
-        _verticalInput = Input.GetAxisRaw("Vertical");
+        if (_player.local)
+        {
+            _horizontalInput = Input.GetAxisRaw("Horizontal");
+            _verticalInput = Input.GetAxisRaw("Vertical");
+        }
     }
 
     private void StateHandler()

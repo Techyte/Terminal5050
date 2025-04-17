@@ -57,23 +57,28 @@ public class ChargePoint : Interactable
             Slotted();
             
             float amountToGain = chargeSpeed * Time.deltaTime;
+
+            bool local = _pManager.GetComponent<Player>().local;
             
             if (_pManager.charge + amountToGain >= _pManager.maxCharge)
             {
                 PowerManager.Instance.ChangeCharge(-(_pManager.maxCharge - _pManager.charge));
                 _pManager.charge = _pManager.maxCharge;
                 GoBack();
-                ActionBar.Instance.NewOutput("Finished Charging");
+                if (local)
+                    ActionBar.Instance.NewOutput("Finished Charging");
             }
             else if (PowerManager.Instance.CurrentCharge - amountToGain <= 0)
             {
                 GoBack();
-                ActionBar.Instance.NewOutput("Ran out of power", Color.red);
+                if (local)
+                    ActionBar.Instance.NewOutput("Ran out of power", Color.red);
             }
             else
             {
                 _pManager.charge += amountToGain;
-                PowerManager.Instance.ChangeCharge(-amountToGain);
+                if (local)
+                    PowerManager.Instance.ChangeCharge(-amountToGain);
             }
         }
     }

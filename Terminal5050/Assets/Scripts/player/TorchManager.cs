@@ -11,10 +11,13 @@ public class TorchManager : MonoBehaviour
 
     private Torch _torch;
 
+    private Player _player;
+
     private void Awake()
     {
         _inventory = GetComponent<Inventory>();
         _pManager = GetComponent<PersonalPowerManager>();
+        _player = GetComponent<Player>();
     }
 
     private void Update()
@@ -27,16 +30,19 @@ public class TorchManager : MonoBehaviour
         {
             _torch = null;
         }
-        
-        torchLight.gameObject.SetActive(_on);
 
         if (_torch == null)
         {
             _on = false;
+            torchLight.gameObject.SetActive(false);
             return;
         }
 
-        if (Input.GetMouseButtonDown(0) && _pManager.charge >= 0)
+        bool wantToToggle = false;
+        
+        wantToToggle = Input.GetMouseButtonDown(0) && _player.local;
+
+        if (wantToToggle && _pManager.charge >= 0)
         {
             _on = !_on;
             _inventory.Click.Play();
