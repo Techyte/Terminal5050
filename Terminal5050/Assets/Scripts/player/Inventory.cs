@@ -3,6 +3,10 @@ using UnityEngine;
 public class Inventory : MonoBehaviour
 {
     [SerializeField] private Transform itemDisplayLocation;
+    [SerializeField] private Transform itemThrowSpawnLocation;
+    [SerializeField] private Transform cam;
+    [SerializeField] private WorldItem worldItemPreset;
+    [SerializeField] private float throwForce = 1;
 
     [SerializeField] private ItemTemplate torchTemplate;
     [SerializeField] private ItemTemplate scannerTemplate;
@@ -23,14 +27,6 @@ public class Inventory : MonoBehaviour
     private void Awake()
     {
         smallItems = new Item[smallCapacity];
-        
-        Torch torch = new Torch(1);
-        torch.template = torchTemplate;
-        smallItems[0] = torch;
-        
-        Scanner scanner = new Scanner(1);
-        scanner.template = scannerTemplate;
-        smallItems[1] = scanner;
         
         UpdateSelected();
     }
@@ -67,6 +63,16 @@ public class Inventory : MonoBehaviour
             selectedIndex = 4;
             UpdateSelected();
         }
+
+        if (Input.GetKeyDown(KeyCode.Q) && !Input.GetKeyDown(KeyCode.LeftControl) && smallItems[selectedIndex] != null)
+        {
+            ThrowItem(false);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Q) && Input.GetKeyDown(KeyCode.LeftControl) && largeItem != null)
+        {
+            ThrowItem(true);
+        }
     }
 
     private void UpdateSelected()
@@ -82,6 +88,32 @@ public class Inventory : MonoBehaviour
         _currentItemDisplay = Instantiate(smallItems[selectedIndex].template.model, itemDisplayLocation.position,
             Quaternion.identity, itemDisplayLocation);
         _currentItemDisplay.transform.localRotation = smallItems[selectedIndex].template.model.transform.rotation;
+    }
+
+    private void ThrowItem(bool big)
+    {
+        Vector3 pos = itemThrowSpawnLocation.position;
+
+        RaycastHit hit;
+        if (Physics.Raycast(cam.position, cam.forward, out hit, 1.255f))
+        {
+            pos = hit.point;
+        }
+        
+        WorldItem worldItem = Instantiate(worldItemPreset, pos, Quaternion.identity);
+        if (big)
+        {
+            worldItem.Init(largeItem);
+        }
+        else
+        {
+            worldItem.Init(smallItems[selectedIndex]);
+        }
+        smallItems[selectedIndex] = null;
+        
+        worldItem.GetComponent<Rigidbody>().AddForce(itemThrowSpawnLocation.forward * throwForce);
+        
+        UpdateSelected();
     }
 
     public int CanGainSmallItem()
@@ -101,13 +133,15 @@ public class Inventory : MonoBehaviour
 
     public bool TryGainItem(Item item)
     {
+        bool gained = false;
+        
         switch (item.template.type)
         {
             case Type.Large:
                 if (largeItem == null)
                 {
                     largeItem = item;
-                    return true;
+                    gained = true;
                 }
                 break;
             case Type.Small:
@@ -119,13 +153,16 @@ public class Inventory : MonoBehaviour
                         if (smallItems[i] == null)
                         {
                             smallItems[i] = item;
-                            return true;
+                            gained = true;
+                            break;
                         }
                     }
                 }
                 break;
         }
+        
+        UpdateSelected();
 
-        return false;
+        return gained;
     }
 }

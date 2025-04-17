@@ -3,14 +3,19 @@ using UnityEngine;
 public class WorldItem : Interactable
 {
     [SerializeField] private ItemTemplate defaultItem;
-    [SerializeField] private LayerMask interactableLayer;
+    [SerializeField] private MeshFilter filter;
+    [SerializeField] private MeshRenderer mRenderer;
+    [SerializeField] private MeshCollider mCollider;
+    [SerializeField] private Rigidbody rb;
     
-    private GameObject model;
     private Item _item;
 
     private void Start()
     {
-        Init(new Item(defaultItem));
+        if (_item == null)
+        {
+            Init(new Item(defaultItem));
+        }
     }
 
     public void Init(Item item)
@@ -21,31 +26,41 @@ public class WorldItem : Interactable
 
     private void SetModel()
     {
-        model = Instantiate(_item.template.model, transform);
-        
-        model.transform.localPosition = Vector3.zero;
-        model.layer = interactableLayer;
-        
-        MeshCollider modelCollider = model.AddComponent<MeshCollider>();
-        modelCollider.sharedMesh = _item.template.mesh;
-        modelCollider.convex = true;
-        
-        model.AddComponent<Rigidbody>();
-        
-        model.AddComponent<ItemModel>();
+        filter.mesh = _item.template.mesh;
+        mCollider.sharedMesh = _item.template.mesh;
+        mCollider.convex = true;
+
+        transform.localScale = _item.template.model.transform.localScale;
+
+        mRenderer.sharedMaterial = _item.template.model.GetComponent<MeshRenderer>().sharedMaterial;
+
+        mCollider.isTrigger = false;
     }
 
-    public void DestroyRigidbody()
+    private void OnCollisionEnter(Collision other)
     {
-        Destroy(model.GetComponent<Rigidbody>());
+        if (other.gameObject.CompareTag("Player"))
+        {
+            return;
+        }
+        
+        mCollider.isTrigger = true;
+
+        rb.useGravity = false;
+        rb.constraints = RigidbodyConstraints.FreezeAll;
     }
 
     public override void Interact(PersonalPowerManager pManager)
     {
         Inventory inventory = pManager.GetComponent<Inventory>();
-        if (inventory.TryGainItem(_item))
+        if (!inventory.TryGainItem(_item))
         {
             ActionBar.Instance.NewOutput("Not enough space to pick up item", Color.red);
+        }
+        else
+        {
+            ActionBar.Instance.NewOutput($"+1 {_item.template.name}");
+            Destroy(gameObject);
         }
     }
 }
