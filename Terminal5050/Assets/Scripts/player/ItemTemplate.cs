@@ -7,6 +7,7 @@ public class ItemTemplate : ScriptableObject
     public Type type;
     public GameObject model;
     public Sprite sprite;
+    public Mesh mesh;
 }
 
 public enum Type

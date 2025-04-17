@@ -16,3 +16,4 @@ MonoBehaviour:
   type: 0
   model: {fileID: 3633466431716821110, guid: 6d7a2b74b9abe1f4b97c172b93447dec, type: 3}
   sprite: {fileID: 21300000, guid: d75d909e723f8cf46bf252f7ba06e33f, type: 3}
+  mesh: {fileID: 2584093662464022575, guid: 4f9d618c32f192e4b8e3764844029c1d, type: 3}

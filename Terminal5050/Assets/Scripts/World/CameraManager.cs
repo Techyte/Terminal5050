@@ -26,14 +26,14 @@ public class CameraManager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
-        foreach (var cam in defaultCam)
-        {
-            cam.Trigger();
-        }
     }
 
     private void Start()
     {
+        foreach (var cam in defaultCam)
+        {
+            cam.Trigger();
+        }
         SwitchToCam(0);
     }
 
@@ -83,7 +83,7 @@ public class CameraManager : MonoBehaviour
         }
         else
         {
-            PowerManager.Instance.ChangeCharge(cameraPowerDrain * Time.deltaTime);
+            PowerManager.Instance.ChangeCharge(-cameraPowerDrain * Time.deltaTime);
         }
         
         if (_rotDirection)

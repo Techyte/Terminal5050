@@ -16,6 +16,8 @@ public class CameraController : MonoBehaviour
     [SerializeField] private float defaultFOV;
     [SerializeField] private float viewBobIntensity = 0.05f;
     [SerializeField] private float viewBobSpeed = 14f;
+    [SerializeField] private float smooth = 8;
+    [SerializeField] private float swayMultiplier = 2;
 
     private Camera thisCam;
     
@@ -59,6 +61,17 @@ public class CameraController : MonoBehaviour
         // We are grounded, so recalculate move direction based on axes
         float curSpeedX = Input.GetAxis("Vertical");
         float curSpeedY = Input.GetAxis("Horizontal");
+        
+        float mouseXItem = Input.GetAxis("Mouse X") * swayMultiplier;
+        float mouseYItem = Input.GetAxis("Mouse Y") * swayMultiplier;
+        
+        Quaternion rotationX = Quaternion.AngleAxis(-mouseYItem, Vector3.right);
+        Quaternion rotationY = Quaternion.AngleAxis(mouseXItem, Vector3.up);
+
+        Quaternion targetRotation = rotationX * rotationY;
+        
+        itemDisplay.localRotation = Quaternion.Slerp(itemDisplay.localRotation, targetRotation, smooth * Time.deltaTime);
+        
         Vector3 moveDirection = (Vector3.forward * curSpeedX) + (Vector3.right * curSpeedY);
         
         if(Mathf.Abs(moveDirection.x) > 0.1f || Mathf.Abs(moveDirection.z) > 0.1f)

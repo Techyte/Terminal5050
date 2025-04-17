@@ -9,6 +9,7 @@ public class Inventory : MonoBehaviour
     [SerializeField] private CameraController controller;
     [SerializeField] private AudioSource beep;
     [SerializeField] private AudioSource click;
+    [SerializeField] private int smallCapacity = 5;
 
     public AudioSource Beep => beep;
     public AudioSource Click => click;
@@ -21,6 +22,8 @@ public class Inventory : MonoBehaviour
 
     private void Awake()
     {
+        smallItems = new Item[smallCapacity];
+        
         Torch torch = new Torch(1);
         torch.template = torchTemplate;
         smallItems[0] = torch;
@@ -79,5 +82,50 @@ public class Inventory : MonoBehaviour
         _currentItemDisplay = Instantiate(smallItems[selectedIndex].template.model, itemDisplayLocation.position,
             Quaternion.identity, itemDisplayLocation);
         _currentItemDisplay.transform.localRotation = smallItems[selectedIndex].template.model.transform.rotation;
+    }
+
+    public int CanGainSmallItem()
+    {
+        int capacity = smallCapacity;
+        
+        for (int i = 0; i < smallItems.Length; i++)
+        {
+            if (smallItems[i] != null)
+            {
+                capacity--;
+            }
+        }
+
+        return capacity;
+    }
+
+    public bool TryGainItem(Item item)
+    {
+        switch (item.template.type)
+        {
+            case Type.Large:
+                if (largeItem == null)
+                {
+                    largeItem = item;
+                    return true;
+                }
+                break;
+            case Type.Small:
+                int remainingSpace = CanGainSmallItem();
+                if (remainingSpace != 0)
+                {
+                    for (int i = 0; i < smallItems.Length; i++)
+                    {
+                        if (smallItems[i] == null)
+                        {
+                            smallItems[i] = item;
+                            return true;
+                        }
+                    }
+                }
+                break;
+        }
+
+        return false;
     }
 }
