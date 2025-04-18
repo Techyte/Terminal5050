@@ -10,6 +10,23 @@ public class Player : MonoBehaviour
 
     public string username;
 
+    public static Player SpawnNewPlayer(string username, bool local)
+    {
+        GameObject playerPrefab = Resources.Load<GameObject>("Prefabs/Player");
+
+        GameObject playerObj = Instantiate(playerPrefab, PlayerSpawningInfo.Instance.SpawnLocation.position, Quaternion.identity, PlayerSpawningInfo.Instance.transform);
+        
+        Player newPlayer = playerObj.GetComponentInChildren<Player>();
+        newPlayer.Init(username);
+        
+        if (local)
+        {
+            newPlayer.MakeLocal();
+        }
+
+        return newPlayer;
+    }
+
     public void MakeLocal()
     {
         if (LocalPlayer != null)
@@ -21,24 +38,20 @@ public class Player : MonoBehaviour
         
         local = true;
         localPlayerChanged?.Invoke();
-        Debug.Log($"Local player changed to {transform.parent.name}");
     }
 
     private void NotLocal()
     {
-        Debug.Log($"Local player is not to {transform.parent.name}");
         local = false;
     }
 
     private void Start()
     {
-        Debug.Log(LocalPlayer);
         Init("PayishVibes");
     }
     
     private void Init(string name)
     {
-        Debug.Log(LocalPlayer);
         if (LocalPlayer == null)
         {
             MakeLocal();

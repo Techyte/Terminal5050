@@ -18,7 +18,7 @@ public class ConsoleInteraction : MonoBehaviour
     
     private void Update()
     {
-        if (!_interacting)
+        if (!_interacting || !playerCam)
         {
             RaycastHit hit;
             if (Physics.Raycast(playerCam.transform.position, playerCam.transform.forward, out hit, maxDistance))

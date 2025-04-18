@@ -38,6 +38,8 @@ public class PlayerMovement : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         _player = GetComponent<Player>();
         rb.freezeRotation = true;
+
+        respawn = PlayerSpawningInfo.Instance.SpawnLocation;
     }
 
     private void Update()
