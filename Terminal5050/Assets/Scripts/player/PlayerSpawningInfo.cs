@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Riptide;
@@ -26,28 +25,47 @@ public class PlayerSpawningInfo : MonoBehaviour
         }
         else
         {
-            ClientSendPosRot();
-        }
-    }
-
-    private void ClientSendPosRot()
-    {
-        Debug.Log("Client sending PosRot");
-        
-        Message posRotMessage = Message.Create(MessageSendMode.Unreliable, ClientToServerMessageId.PosRot);
-
-        Player player = Player.LocalPlayer;
-
-        if (player != null)
-        {
-            posRotMessage.AddVector3(player.transform.position);
-            posRotMessage.AddQuaternion(player.rotationManager.transform.rotation);
-        
-            NetworkManager.Instance.Client.Send(posRotMessage);
+            ClientStateInfo();
         }
     }
 
     private void ServerStateBlast()
+    {
+        if (Player.LocalPlayer == null)
+        {
+            return;
+        }
+        
+        ServerPosRotBlast();
+        ServerPowerBlast();
+    }
+
+    private void ClientStateInfo()
+    {
+        if (Player.LocalPlayer == null)
+        {
+            return;
+        }
+        
+        ClientSendPosRot();
+        ClientPowerInfo();
+    }
+
+    #region PosRot
+
+    private void ClientSendPosRot()
+    {
+        Message posRotMessage = Message.Create(MessageSendMode.Unreliable, ClientToServerMessageId.PosRot);
+
+        Player player = Player.LocalPlayer;
+
+        posRotMessage.AddVector3(player.transform.position);
+        posRotMessage.AddQuaternion(player.rotationManager.transform.rotation);
+        
+        NetworkManager.Instance.Client.Send(posRotMessage);
+    }
+
+    private void ServerPosRotBlast()
     {
         Message posRotMessage = Message.Create(MessageSendMode.Unreliable, ServerToClientMessageId.PosRotBlast);
 
@@ -95,10 +113,86 @@ public class PlayerSpawningInfo : MonoBehaviour
         {
             if (!player.local)
             {
-                Debug.Log($"setting pos to {pos.ToString()}");
                 player.transform.position = pos;
                 player.rotationManager.transform.rotation = rot;
             }
         }
     }
+
+    #endregion
+
+    #region Power
+
+    private void ServerPowerBlast()
+    {
+        Message posRotMessage = Message.Create(MessageSendMode.Unreliable, ServerToClientMessageId.PowerBlast);
+
+        List<Player> players = NetworkManager.Instance.players.Values.ToList();
+
+        posRotMessage.AddInt(players.Count);
+
+        foreach (var player in players)
+        {
+            posRotMessage.AddUShort(player.id);
+            posRotMessage.AddFloat(player.powerManager.charge);
+            posRotMessage.AddFloat(player.powerManager.maxCharge);
+        }
+
+        posRotMessage.AddFloat(PowerManager.Instance.CurrentCharge);
+        posRotMessage.AddFloat(PowerManager.Instance.MaxCharge);
+        
+        NetworkManager.Instance.Server.SendToAll(posRotMessage, Player.LocalPlayer.id);
+    }
+    
+    public void ServerReceivedPowerInfo(ushort id, float charge, float maxCharge)
+    {
+        if (NetworkManager.Instance.players.TryGetValue(id, out Player player))
+        {
+            if (!player.local)
+            {
+                player.powerManager.charge = charge;
+                player.powerManager.maxCharge = maxCharge;
+            }
+        }
+    }
+    
+    private void ClientPowerInfo()
+    {
+        PersonalPowerManager pManager = Player.LocalPlayer.powerManager;
+        
+        Message message = Message.Create(MessageSendMode.Unreliable, ClientToServerMessageId.PersonalPower);
+        message.AddFloat(pManager.charge);
+        message.AddFloat(pManager.maxCharge);
+
+        NetworkManager.Instance.Client.Send(message);
+    }
+    
+    public void ClientReceivedPowerBlast(Message message)
+    {
+        int length = message.GetInt();
+        
+        if (length != 0)
+        {
+            for (int i = 0; i < length; i++)
+            {
+                ushort id = message.GetUShort();
+                float charge = message.GetFloat();
+                float maxCharge = message.GetFloat();
+                
+                if (NetworkManager.Instance.players.TryGetValue(id, out Player player))
+                {
+                    if (!player.local)
+                    {
+                        player.powerManager.charge = charge;
+                        player.powerManager.charge = maxCharge;
+                    }
+                }
+            }
+        }
+
+        PowerManager.Instance.SetCharge(message.GetFloat());
+        PowerManager.Instance.MaxCharge = message.GetFloat();
+    }
+
+    #endregion
 }

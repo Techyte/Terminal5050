@@ -43,12 +43,31 @@ public class PowerManager : MonoBehaviour
         }
     }
 
+    public void SetCharge(float newCharge)
+    {
+        currentCharge = newCharge;
+        if (currentCharge > MaxCharge)
+        {
+            currentCharge = MaxCharge;
+        }
+
+        if (currentCharge < 0)
+        {
+            currentCharge = 0;
+        }
+    }
+
     public void ChangeCharge(float amount)
     {
         currentCharge += amount;
         if (currentCharge > MaxCharge)
         {
             currentCharge = MaxCharge;
+        }
+
+        if (currentCharge < 0)
+        {
+            currentCharge = 0;
         }
     }
 

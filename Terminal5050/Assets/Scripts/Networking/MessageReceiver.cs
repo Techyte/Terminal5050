@@ -14,6 +14,12 @@ public class MessageReceiver
         PlayerSpawningInfo.Instance.ServerReceivedPosRot(clientId, message.GetVector3(), message.GetQuaternion());
     }
     
+    [MessageHandler(((ushort)ClientToServerMessageId.PersonalPower))]
+    private static void ServerPower(ushort clientId, Message message)
+    {
+        PlayerSpawningInfo.Instance.ServerReceivedPowerInfo(clientId, message.GetFloat(), message.GetFloat());
+    }
+    
     // Also used to tell a client that just joined to spawn itself lol
     [MessageHandler(((ushort)ServerToClientMessageId.NewPlayerJoined))]
     private static void ClientNewPlayerJoined(Message message)
@@ -31,5 +37,11 @@ public class MessageReceiver
     private static void ClientPosRotBlast(Message message)
     {
         PlayerSpawningInfo.Instance.ClientReceivePosRotBlast(message);
+    }
+    
+    [MessageHandler(((ushort)ServerToClientMessageId.PowerBlast))]
+    private static void ClientPowerBlast(Message message)
+    {
+        PlayerSpawningInfo.Instance.ClientReceivedPowerBlast(message);
     }
 }

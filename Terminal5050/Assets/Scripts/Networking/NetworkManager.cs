@@ -8,6 +8,7 @@ enum ClientToServerMessageId : ushort
 {
     BasicInfo,
     PosRot,
+    PersonalPower,
 }
 
 enum ServerToClientMessageId : ushort
@@ -15,6 +16,7 @@ enum ServerToClientMessageId : ushort
     NewPlayerJoined = 100,
     CurrentPlayerInfo,
     PosRotBlast,
+    PowerBlast,
 }
 
 public class NetworkManager : MonoBehaviour
