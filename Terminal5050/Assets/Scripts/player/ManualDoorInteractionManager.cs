@@ -50,13 +50,16 @@ public class ManualDoorInteractionManager : MonoBehaviour
             }
         }else if (Physics.Raycast(playerCam.transform.position, playerCam.transform.forward, out hit, maxDistance, interactableLayer))
         {
-            Interactable interactHit = hit.transform.gameObject.GetComponent<Interactable>();
-            if (interactHit)
+            Interactable[] interactHit = hit.transform.gameObject.GetComponents<Interactable>();
+            if (interactHit.Length > 0)
             {
                 interacted = true;
                 if (wantToInteract)
                 {
-                    interactHit.Interact(GetComponent<PersonalPowerManager>());
+                    for (int i = 0; i < interactHit.Length; i++)
+                    {
+                        interactHit[i].Interact(_player.powerManager);
+                    }
                 }
             }
         }

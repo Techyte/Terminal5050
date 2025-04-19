@@ -44,6 +44,17 @@ public class Player : MonoBehaviour
         return newPlayer;
     }
 
+    public static void PlayerLeft(ushort id)
+    {
+        foreach (var player in NetworkManager.Instance.players.Values)
+        {
+            if (player.id == id)
+            {
+                Destroy(player.transform.parent.gameObject);
+            }
+        }
+    }
+
     public void MakeLocal()
     {
         if (LocalPlayer != null)

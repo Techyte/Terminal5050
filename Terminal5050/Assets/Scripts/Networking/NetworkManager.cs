@@ -9,6 +9,15 @@ enum ClientToServerMessageId : ushort
     BasicInfo,
     PosRot,
     PersonalPower,
+    ChangedCamera,
+    ToggleCamera,
+    ActivateCamera,
+    PickUpItem,
+    DropItem,
+    SwitchItem,
+    PingDoor,
+    ToggleItem,
+    ToggleDoor,
 }
 
 enum ServerToClientMessageId : ushort
@@ -17,6 +26,17 @@ enum ServerToClientMessageId : ushort
     CurrentPlayerInfo,
     PosRotBlast,
     PowerBlast,
+    PowerOverloaded,
+    CameraChanged,
+    CameraToggled,
+    CameraActivated,
+    CameraRot,
+    ItemPickedUp,
+    ItemDropped,
+    ItemSwitched,
+    DoorPinged,
+    ItemToggled,
+    DoorToggled,
 }
 
 public class NetworkManager : MonoBehaviour
@@ -74,6 +94,8 @@ public class NetworkManager : MonoBehaviour
         Client.Connected += ClientOnConnected;
         Client.ClientConnected += ClientOnClientConnected;
         Client.Disconnected += ClientOnDisconnected;
+        
+        Client.ClientDisconnected += ClientOnClientDisconnected;
     }
 
     private void ServerOnClientConnected(object sender, ServerConnectedEventArgs e)
@@ -99,6 +121,12 @@ public class NetworkManager : MonoBehaviour
     private void ClientOnDisconnected(object sender, DisconnectedEventArgs e)
     {
         SceneManager.LoadScene("MainMenu");
+    }
+
+    private void ClientOnClientDisconnected(object sender, ClientDisconnectedEventArgs e)
+    {
+        Player.PlayerLeft(e.Id);
+        players.Remove(e.Id);
     }
     
     public void ServerReceivedClientBasicInfo(ushort client, string username)

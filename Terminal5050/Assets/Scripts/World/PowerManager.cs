@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Riptide;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -71,19 +72,37 @@ public class PowerManager : MonoBehaviour
         }
     }
 
+    private bool _overloaded;
+
     private void Update()
     {
         chargeDisplay.transform.GetComponent<RectTransform>().sizeDelta = new Vector2(CurrentCharge / MaxCharge * initialWidth, chargeDisplay.transform.GetComponent<RectTransform>().rect.height);
-
-        if (CurrentCharge <= 0)
+        
+        // need to be the host in order to initiate the overload sequence, ensures its synced across all players
+        if (CurrentCharge <= 0 && !_overloaded && NetworkManager.Instance.Server != null)
         {
             Overloaded();
         }
     }
 
-    private void Overloaded()
+    public void Overloaded()
     {
+        currentCharge = 0;
+        _overloaded = true;
+        
         DoorManager.Instance.CloseAllDoors();
         SpeakerManager.Instance.PowerOverload();
+
+        if (NetworkManager.Instance.Server != null)
+        {
+            SendPowerOverloadMessage();
+        }
+    }
+
+    private void SendPowerOverloadMessage()
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientMessageId.PowerOverloaded);
+
+        NetworkManager.Instance.Server.SendToAll(message, Player.LocalPlayer.id);
     }
 }

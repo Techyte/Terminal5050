@@ -38,6 +38,7 @@ public class PlayerSpawningInfo : MonoBehaviour
         
         ServerPosRotBlast();
         ServerPowerBlast();
+        ServerSendCameraRotation();
     }
 
     private void ClientStateInfo()
@@ -49,6 +50,14 @@ public class PlayerSpawningInfo : MonoBehaviour
         
         ClientSendPosRot();
         ClientPowerInfo();
+    }
+
+    private void ServerSendCameraRotation()
+    {
+        Message message = Message.Create(MessageSendMode.Unreliable, ServerToClientMessageId.CameraRot);
+        message.AddFloat(CameraManager.Instance.rotation);
+
+        NetworkManager.Instance.Server.SendToAll(message, Player.LocalPlayer.id);
     }
 
     #region PosRot

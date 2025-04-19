@@ -7,6 +7,7 @@ public class SecurityCamera : MonoBehaviour
     [SerializeField] private Material idleMat;
     [SerializeField] private MeshRenderer blinkingLight;
     [SerializeField] private float turnOnSpeed = 1;
+    public string id;
 
     private bool enabled;
 
