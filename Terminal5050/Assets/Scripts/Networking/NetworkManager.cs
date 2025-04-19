@@ -14,10 +14,12 @@ enum ClientToServerMessageId : ushort
     ActivateCamera,
     PickUpItem,
     DropItem,
-    SwitchItem,
+    SwapItem,
     PingDoor,
     ToggleItem,
     ToggleDoor,
+    StartSpeakers,
+    StopSpeakers,
 }
 
 enum ServerToClientMessageId : ushort
@@ -33,10 +35,13 @@ enum ServerToClientMessageId : ushort
     CameraRot,
     ItemPickedUp,
     ItemDropped,
-    ItemSwitched,
+    ItemHitGround,
+    ItemSwapped,
     DoorPinged,
     ItemToggled,
     DoorToggled,
+    SpeakersStarted,
+    SpeakersStopped,
 }
 
 public class NetworkManager : MonoBehaviour

@@ -109,7 +109,7 @@ public class PlayerSpawningInfo : MonoBehaviour
                     if (!player.local)
                     {
                         player.transform.position = position;
-                        player.rotationManager.transform.rotation = rotation;
+                        player.rotationManager.cam.rotation = rotation;
                     }
                 }
             }
@@ -123,7 +123,7 @@ public class PlayerSpawningInfo : MonoBehaviour
             if (!player.local)
             {
                 player.transform.position = pos;
-                player.rotationManager.transform.rotation = rot;
+                player.rotationManager.cam.rotation = rot;
             }
         }
     }

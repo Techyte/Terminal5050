@@ -3,13 +3,15 @@ using UnityEngine;
 public class TorchManager : MonoBehaviour
 {
     [SerializeField] private Light torchLight;
+    [SerializeField] private float torchDrainPerSecond;
+    public float scannerDrain;
 
     private Inventory _inventory;
     private PersonalPowerManager _pManager;
 
     private bool _on;
 
-    private Torch _torch;
+    private Item _torch;
 
     private Player _player;
 
@@ -22,9 +24,16 @@ public class TorchManager : MonoBehaviour
 
     private void Update()
     {
-        if (_inventory.smallItems[_inventory.selectedIndex] is Torch)
+        if (_inventory.smallItems[_inventory.selectedIndex] != null)
         {
-            _torch = (Torch)_inventory.smallItems[_inventory.selectedIndex];
+            if (_inventory.smallItems[_inventory.selectedIndex].template.name == "Torch")
+            {
+                _torch = _inventory.smallItems[_inventory.selectedIndex];
+            }
+            else
+            {
+                _torch = null;
+            }
         }
         else
         {
@@ -50,15 +59,10 @@ public class TorchManager : MonoBehaviour
 
         if (_on)
         {
-            _pManager.charge -= _torch.drainPerSecond * Time.deltaTime;
+            _pManager.charge -= torchDrainPerSecond * Time.deltaTime;
         }
         
         torchLight.gameObject.SetActive(_on);
-
-        if (_on)
-        {
-            _pManager.charge -= _torch.drainPerSecond * Time.deltaTime;
-        }
 
         if (_pManager.charge <= 0)
         {

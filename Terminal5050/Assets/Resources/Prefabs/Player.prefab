@@ -277,6 +277,7 @@ MonoBehaviour:
   username: 
   rotationManager: {fileID: 0}
   powerManager: {fileID: 0}
+  inventory: {fileID: 0}
 --- !u!114 &7383239699269166716
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -362,6 +363,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   torchLight: {fileID: 9193580231849140642}
+  torchDrainPerSecond: 1
+  scannerDrain: 5
 --- !u!114 &6025124622387017206
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -385,7 +388,13 @@ MonoBehaviour:
   beep: {fileID: 1044925928384833191}
   click: {fileID: 6600380578600787987}
   smallCapacity: 5
+  defaultItems:
+  - template: {fileID: 11400000, guid: 6f5da2979e6ca6442badca5d04192d89, type: 2}
+  - template: {fileID: 11400000, guid: 972c1ee94d0107440b41a06c450ba041, type: 2}
   selectedIndex: 0
+  largeItem:
+    template: {fileID: 0}
+  smallItems: []
 --- !u!114 &1038973532995851347
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,3 +1,4 @@
+using Riptide;
 using UnityEngine;
 
 public class Inventory : MonoBehaviour
@@ -14,13 +15,14 @@ public class Inventory : MonoBehaviour
     [SerializeField] private AudioSource beep;
     [SerializeField] private AudioSource click;
     [SerializeField] private int smallCapacity = 5;
+    [SerializeField] private Item[] defaultItems;
 
     public AudioSource Beep => beep;
     public AudioSource Click => click;
     
     public int selectedIndex = 0;
-    public Item largeItem;
-    public Item[] smallItems = new Item[5];
+    [HideInInspector] public Item largeItem;
+    public Item[] smallItems;
 
     private GameObject _currentItemDisplay;
 
@@ -29,11 +31,14 @@ public class Inventory : MonoBehaviour
     private void Awake()
     {
         _player = GetComponent<Player>();
-        
-        smallItems = new Item[smallCapacity];
 
-        smallItems[0] = new Torch(1, torchTemplate);
-        smallItems[1] = new Scanner(5, scannerTemplate);
+        smallItems = new Item[smallCapacity];
+        largeItem = null;
+
+        for (int i = 0; i < defaultItems.Length; i++)
+        {
+            smallItems[i] = defaultItems[i];
+        }
         
         UpdateSelected();
     }
@@ -47,28 +52,23 @@ public class Inventory : MonoBehaviour
         
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            selectedIndex = 0;
-            UpdateSelected();
+            SendSwapItemMessage(Player.LocalPlayer.id, 0);
         }
         if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            selectedIndex = 1;
-            UpdateSelected();
+            SendSwapItemMessage(Player.LocalPlayer.id, 1);
         }
         if (Input.GetKeyDown(KeyCode.Alpha3))
         {
-            selectedIndex = 2;
-            UpdateSelected();
+            SendSwapItemMessage(Player.LocalPlayer.id, 2);
         }
         if (Input.GetKeyDown(KeyCode.Alpha4))
         {
-            selectedIndex = 3;
-            UpdateSelected();
+            SendSwapItemMessage(Player.LocalPlayer.id, 3);
         }
         if (Input.GetKeyDown(KeyCode.Alpha5))
         {
-            selectedIndex = 4;
-            UpdateSelected();
+            SendSwapItemMessage(Player.LocalPlayer.id, 4);
         }
 
         bool wantToDrop = false;
@@ -86,6 +86,12 @@ public class Inventory : MonoBehaviour
         {
             ThrowItem(true);
         }
+    }
+
+    private void ChangeItem(int index)
+    {
+        selectedIndex = index;
+        UpdateSelected();
     }
 
     private void UpdateSelected()
@@ -178,4 +184,84 @@ public class Inventory : MonoBehaviour
 
         return gained;
     }
+
+    #region GainItem
+    
+    private static void SendGainItemMessage(ushort id, int index)
+    {
+        if (NetworkManager.Instance.Server != null)
+        {
+            if (NetworkManager.Instance.players.TryGetValue(id, out Player player))
+            {
+                player.inventory.ChangeItem(index);
+            }
+            
+            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientMessageId.ItemSwapped);
+
+            NetworkManager.Instance.Server.SendToAll(message, Player.LocalPlayer.id);
+        }
+        else // client wants to notify the server
+        {
+            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerMessageId.SwapItem);
+            message.AddInt(index);
+
+            NetworkManager.Instance.Client.Send(message);
+        }
+    }
+
+    public static void ServerGainItem(ushort client, int index)
+    {
+        SendSwapItemMessage(client, index);
+    }
+
+    public static void ClientGainItem(ushort client, int index)
+    {
+        if (NetworkManager.Instance.players.TryGetValue(client, out Player player))
+        {
+            player.inventory.ChangeItem(index);
+        }
+    }
+
+    #endregion
+
+    #region SwapItem
+
+    private static void SendSwapItemMessage(ushort id, int index)
+    {
+        if (NetworkManager.Instance.Server != null)
+        {
+            if (NetworkManager.Instance.players.TryGetValue(id, out Player player))
+            {
+                player.inventory.ChangeItem(index);
+            }
+            
+            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientMessageId.ItemSwapped);
+            message.AddUShort(id);
+            message.AddInt(index);
+
+            NetworkManager.Instance.Server.SendToAll(message, Player.LocalPlayer.id);
+        }
+        else // client wants to notify the server
+        {
+            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerMessageId.SwapItem);
+            message.AddInt(index);
+
+            NetworkManager.Instance.Client.Send(message);
+        }
+    }
+
+    public static void ServerSwapItem(ushort client, int index)
+    {
+        SendSwapItemMessage(client, index);
+    }
+
+    public static void ClientSwapItem(ushort client, int index)
+    {
+        if (NetworkManager.Instance.players.TryGetValue(client, out Player player))
+        {
+            player.inventory.ChangeItem(index);
+        }
+    }
+
+    #endregion
 }

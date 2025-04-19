@@ -38,6 +38,12 @@ public class MessageReceiver
         CameraManager.Instance.ServerReceivedActivateCamera(message.GetString());
     }
     
+    [MessageHandler(((ushort)ClientToServerMessageId.SwapItem))]
+    private static void ServerSwapItem(ushort clientId, Message message)
+    {
+        Inventory.ServerSwapItem(clientId, message.GetInt());
+    }
+    
     // Also used to tell a client that just joined to spawn itself lol
     [MessageHandler(((ushort)ServerToClientMessageId.NewPlayerJoined))]
     private static void ClientNewPlayerJoined(Message message)
@@ -91,5 +97,11 @@ public class MessageReceiver
     private static void ClientPowerOverloaded(Message message)
     {
         PowerManager.Instance.Overloaded();
+    }
+    
+    [MessageHandler(((ushort)ServerToClientMessageId.ItemSwapped))]
+    private static void ClientItemSwapped(Message message)
+    {
+        Inventory.ClientSwapItem(message.GetUShort(), message.GetInt());
     }
 }

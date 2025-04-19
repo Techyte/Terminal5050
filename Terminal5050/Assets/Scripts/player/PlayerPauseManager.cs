@@ -71,6 +71,9 @@ public class PlayerPauseManager : MonoBehaviour
 
     private void OnApplicationFocus(bool hasFocus)
     {
-        SetPaused(!hasFocus);
+        if (!hasFocus)
+        {
+            SetPaused(true);
+        }
     }
 }

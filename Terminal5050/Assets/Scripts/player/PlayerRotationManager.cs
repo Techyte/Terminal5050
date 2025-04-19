@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class PlayerRotationManager : MonoBehaviour
 {
-    [SerializeField] private Transform cam;
+    public Transform cam;
 
     private Player _player;
 
@@ -13,9 +13,6 @@ public class PlayerRotationManager : MonoBehaviour
 
     private void Update()
     {
-        if (!_player.local)
-            return;
-        
         Vector3 camEuler = cam.eulerAngles;
         Vector3 selfEuler = transform.eulerAngles;
         transform.rotation = Quaternion.Euler(selfEuler.x, camEuler.y, selfEuler.z);
