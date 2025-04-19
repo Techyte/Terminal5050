@@ -35,7 +35,6 @@ enum ServerToClientMessageId : ushort
     CameraRot,
     ItemPickedUp,
     ItemDropped,
-    ItemHitGround,
     ItemSwapped,
     DoorPinged,
     ItemToggled,

@@ -44,6 +44,18 @@ public class MessageReceiver
         Inventory.ServerSwapItem(clientId, message.GetInt());
     }
     
+    [MessageHandler(((ushort)ClientToServerMessageId.PickUpItem))]
+    private static void ServerPickUpItem(ushort clientId, Message message)
+    {
+        Inventory.ServerGainItem(clientId, message.GetString());
+    }
+    
+    [MessageHandler(((ushort)ClientToServerMessageId.DropItem))]
+    private static void ServerDropItem(ushort clientId, Message message)
+    {
+        Inventory.ServerDropItem(clientId, message.GetBool(), message.GetInt());
+    }
+    
     // Also used to tell a client that just joined to spawn itself lol
     [MessageHandler(((ushort)ServerToClientMessageId.NewPlayerJoined))]
     private static void ClientNewPlayerJoined(Message message)
@@ -103,5 +115,17 @@ public class MessageReceiver
     private static void ClientItemSwapped(Message message)
     {
         Inventory.ClientSwapItem(message.GetUShort(), message.GetInt());
+    }
+    
+    [MessageHandler(((ushort)ServerToClientMessageId.ItemPickedUp))]
+    private static void ClientItemPickedUp(Message message)
+    {
+        Inventory.ClientGainItem(message.GetUShort(), message.GetString());
+    }
+    
+    [MessageHandler(((ushort)ServerToClientMessageId.ItemDropped))]
+    private static void ClientItemDropped(Message message)
+    {
+        Inventory.ClientDropItem(message.GetUShort(), message.GetBool(), message.GetInt(), message.GetString());
     }
 }

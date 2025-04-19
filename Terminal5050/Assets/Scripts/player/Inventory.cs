@@ -75,16 +75,16 @@ public class Inventory : MonoBehaviour
         bool dropLarge = false;
 
         wantToDrop = Input.GetKeyDown(KeyCode.Q) && _player.local;
-        dropLarge = Input.GetKeyDown(KeyCode.LeftControl) && _player.local;
+        dropLarge = Input.GetKey(KeyCode.LeftControl) && _player.local;
 
         if (wantToDrop && !dropLarge && smallItems[selectedIndex] != null)
         {
-            ThrowItem(false);
+            SendDropItemMessage(Player.LocalPlayer.id, false, selectedIndex);
         }
 
         if (wantToDrop && dropLarge && largeItem != null)
         {
-            ThrowItem(true);
+            SendDropItemMessage(Player.LocalPlayer.id, true, selectedIndex);
         }
     }
 
@@ -109,7 +109,7 @@ public class Inventory : MonoBehaviour
         _currentItemDisplay.transform.localRotation = smallItems[selectedIndex].template.model.transform.rotation;
     }
 
-    private void ThrowItem(bool big)
+    private string ThrowItem(bool big, int index, string id = "")
     {
         Vector3 pos = itemThrowSpawnLocation.position;
 
@@ -120,19 +120,23 @@ public class Inventory : MonoBehaviour
         }
         
         WorldItem worldItem = Instantiate(worldItemPreset, pos, Quaternion.identity);
+        worldItem.id = id;
+        
         if (big)
         {
             worldItem.Init(largeItem);
         }
         else
         {
-            worldItem.Init(smallItems[selectedIndex]);
+            worldItem.Init(smallItems[index]);
         }
-        smallItems[selectedIndex] = null;
+        smallItems[index] = null;
         
         worldItem.GetComponent<Rigidbody>().AddForce(itemThrowSpawnLocation.forward * throwForce);
         
         UpdateSelected();
+
+        return worldItem.id;
     }
 
     public int CanGainSmallItem()
@@ -150,75 +154,179 @@ public class Inventory : MonoBehaviour
         return capacity;
     }
 
-    public bool TryGainItem(Item item)
+    public bool TryGainItem(WorldItem worldItem)
     {
         bool gained = false;
+
+        if (!CanGainItem(worldItem.Item))
+        {
+            return false;
+        }
+        
+        switch (worldItem.Item.template.type)
+        {
+            case Type.Large:
+                largeItem = worldItem.Item;
+                break;
+            case Type.Small:
+                for (int i = 0; i < smallItems.Length; i++)
+                {
+                    if (smallItems[i] == null)
+                    {
+                        smallItems[i] = worldItem.Item;
+                        break;
+                    }
+                }
+                break;
+        }
+        
+        worldItem.PickedUp();
+        
+        UpdateSelected();
+
+        return true;
+    }
+
+    private bool CanGainItem(Item item)
+    {
+        bool canGain = false;
         
         switch (item.template.type)
         {
             case Type.Large:
                 if (largeItem == null)
                 {
-                    largeItem = item;
-                    gained = true;
+                    canGain = true;
                 }
                 break;
             case Type.Small:
                 int remainingSpace = CanGainSmallItem();
                 if (remainingSpace != 0)
                 {
-                    for (int i = 0; i < smallItems.Length; i++)
-                    {
-                        if (smallItems[i] == null)
-                        {
-                            smallItems[i] = item;
-                            gained = true;
-                            break;
-                        }
-                    }
+                    canGain = true;
                 }
                 break;
         }
-        
-        UpdateSelected();
 
-        return gained;
+        return canGain;
+    }
+
+    public void ItemWantToBePickedUp(WorldItem worldItem)
+    {
+        if (CanGainItem(worldItem.Item))
+        {
+            SendGainItemMessage(Player.LocalPlayer.id, worldItem);
+        }
     }
 
     #region GainItem
     
-    private static void SendGainItemMessage(ushort id, int index)
+    private static void SendGainItemMessage(ushort id, WorldItem worldItem)
     {
         if (NetworkManager.Instance.Server != null)
         {
             if (NetworkManager.Instance.players.TryGetValue(id, out Player player))
             {
-                player.inventory.ChangeItem(index);
+                Inventory inventory = player.inventory;
+                
+                if (inventory.TryGainItem(worldItem))
+                {
+                    if (player.local)
+                        ActionBar.Instance.NewOutput($"+1 {worldItem.Item.template.name}");
+                }
+                else
+                {
+                    if (player.local)
+                        ActionBar.Instance.NewOutput("Not enough space to pick up item", Color.red);
+                }
             }
             
-            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientMessageId.ItemSwapped);
+            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientMessageId.ItemPickedUp);
+            message.AddUShort(id);
+            message.AddString(worldItem.id);
 
             NetworkManager.Instance.Server.SendToAll(message, Player.LocalPlayer.id);
         }
         else // client wants to notify the server
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerMessageId.SwapItem);
+            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerMessageId.PickUpItem);
+            message.AddString(worldItem.id);
+
+            NetworkManager.Instance.Client.Send(message);
+        }
+    }
+
+    public static void ServerGainItem(ushort client, string id)
+    {
+        SendGainItemMessage(client, WorldItem.GetWorldItemFromId(id));
+    }
+
+    public static void ClientGainItem(ushort client, string worldItemId)
+    {
+        Debug.Log($"received player gained item message");
+        if (NetworkManager.Instance.players.TryGetValue(client, out Player player))
+        {
+            Debug.Log($"Player {client} gained item of id {worldItemId}");
+            
+            Inventory inventory = player.inventory;
+            WorldItem worldItem = WorldItem.GetWorldItemFromId(worldItemId);
+            
+            if (inventory.TryGainItem(worldItem))
+            {
+                if (player.local)
+                    ActionBar.Instance.NewOutput($"+1 {worldItem.Item.template.name}");
+            }
+            else
+            {
+                if (player.local)
+                    ActionBar.Instance.NewOutput("Not enough space to pick up item", Color.red);
+            }
+        }
+    }
+
+    #endregion
+
+    #region DropItem
+    
+    private static void SendDropItemMessage(ushort id, bool big, int index)
+    {
+        if (NetworkManager.Instance.Server != null)
+        {
+            string itemId = "";
+            
+            if (NetworkManager.Instance.players.TryGetValue(id, out Player player))
+            {
+                itemId = player.inventory.ThrowItem(big, index);
+            }
+            
+            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientMessageId.ItemDropped);
+            message.AddUShort(id);
+            message.AddBool(big);
+            message.AddInt(index);
+            message.AddString(itemId);
+
+            NetworkManager.Instance.Server.SendToAll(message, Player.LocalPlayer.id);
+        }
+        else // client wants to notify the server
+        {
+            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerMessageId.DropItem);
+            message.AddBool(big);
             message.AddInt(index);
 
             NetworkManager.Instance.Client.Send(message);
         }
     }
 
-    public static void ServerGainItem(ushort client, int index)
+    public static void ServerDropItem(ushort client, bool big, int index)
     {
-        SendSwapItemMessage(client, index);
+        SendDropItemMessage(client, big, index);
     }
 
-    public static void ClientGainItem(ushort client, int index)
+    public static void ClientDropItem(ushort client, bool big, int index, string id)
     {
         if (NetworkManager.Instance.players.TryGetValue(client, out Player player))
         {
-            player.inventory.ChangeItem(index);
+            player.inventory.ThrowItem(big, index, id);
         }
     }
 
