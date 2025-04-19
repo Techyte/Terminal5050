@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -5,23 +6,37 @@ public class Player : MonoBehaviour
 {
     public static Player LocalPlayer;
     public static UnityEvent localPlayerChanged;
-    
+
+    public ushort id;
     public bool local;
 
     public string username;
 
-    public static Player SpawnNewPlayer(string username, bool local)
+    [HideInInspector] public PlayerRotationManager rotationManager;
+
+    private void Awake()
+    {
+        rotationManager = GetComponentInChildren<PlayerRotationManager>();
+    }
+
+    public static Player SpawnNewPlayer(string username, ushort id, bool local)
     {
         GameObject playerPrefab = Resources.Load<GameObject>("Prefabs/Player");
 
         GameObject playerObj = Instantiate(playerPrefab, PlayerSpawningInfo.Instance.SpawnLocation.position, Quaternion.identity, PlayerSpawningInfo.Instance.transform);
         
         Player newPlayer = playerObj.GetComponentInChildren<Player>();
-        newPlayer.Init(username);
+        newPlayer.Init(username, id);
         
         if (local)
         {
+            Debug.Log($"Making player {id} local");
             newPlayer.MakeLocal();
+        }
+        else
+        {
+            Debug.Log($"Making player {id} not local");
+            newPlayer.GetComponentInChildren<MeshRenderer>().gameObject.layer = 12;
         }
 
         return newPlayer;
@@ -32,6 +47,13 @@ public class Player : MonoBehaviour
         if (LocalPlayer != null)
         {
             LocalPlayer.NotLocal();
+        }
+
+        ConsoleInteraction[] interactions = FindObjectsOfType<ConsoleInteraction>();
+
+        foreach (var interaction in interactions)
+        {
+            interaction.SetPlayer(transform.parent.GetComponentInChildren<Camera>().transform, GetComponent<PlayerMovement>());
         }
         
         LocalPlayer = this;
@@ -44,13 +66,8 @@ public class Player : MonoBehaviour
     {
         local = false;
     }
-
-    private void Start()
-    {
-        Init("PayishVibes");
-    }
     
-    private void Init(string name)
+    private void Init(string name, ushort id)
     {
         if (LocalPlayer == null)
         {
@@ -58,5 +75,6 @@ public class Player : MonoBehaviour
         }
 
         username = name;
+        this.id = id;
     }
 }

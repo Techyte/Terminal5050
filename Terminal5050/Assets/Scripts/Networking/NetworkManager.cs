@@ -2,16 +2,19 @@ using System;
 using System.Collections.Generic;
 using Riptide;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 enum ClientToServerMessageId : ushort
 {
     BasicInfo,
+    PosRot,
 }
 
 enum ServerToClientMessageId : ushort
 {
-    NewPlayerJoined,
+    NewPlayerJoined = 100,
     CurrentPlayerInfo,
+    PosRotBlast,
 }
 
 public class NetworkManager : MonoBehaviour
@@ -28,6 +31,8 @@ public class NetworkManager : MonoBehaviour
     
     private Dictionary<ushort, Player> _clientPlayers = new Dictionary<ushort, Player>();
 
+    public Dictionary<ushort, Player> players => _clientPlayers;
+
     public Server Server;
     public Client Client;
 
@@ -35,8 +40,6 @@ public class NetworkManager : MonoBehaviour
     {
         Instance = this;
         
-        Server = new Server();
-
         Client = new Client();
         
         SubscribeToHooks();
@@ -46,6 +49,7 @@ public class NetworkManager : MonoBehaviour
     {
         if (autoCreateLobby)
         {
+            Server = new Server();
             Server.Start(port, maxClientCount);
 
             _host = true;
@@ -60,10 +64,14 @@ public class NetworkManager : MonoBehaviour
 
     private void SubscribeToHooks()
     {
-        Server.ClientConnected += ServerOnClientConnected;
+        if (Server != null)
+        {
+            Server.ClientConnected += ServerOnClientConnected;
+        }
         
         Client.Connected += ClientOnConnected;
         Client.ClientConnected += ClientOnClientConnected;
+        Client.Disconnected += ClientOnDisconnected;
     }
 
     private void ServerOnClientConnected(object sender, ServerConnectedEventArgs e)
@@ -85,6 +93,11 @@ public class NetworkManager : MonoBehaviour
     {
         
     }
+
+    private void ClientOnDisconnected(object sender, DisconnectedEventArgs e)
+    {
+        SceneManager.LoadScene("MainMenu");
+    }
     
     public void ServerReceivedClientBasicInfo(ushort client, string username)
     {
@@ -92,28 +105,59 @@ public class NetworkManager : MonoBehaviour
         
         bool local = client == Client.Id;
         
-        Player newPlayer = Player.SpawnNewPlayer(username, local);
+        Debug.Log($"Spawning new player {client}");
+        Player newPlayer = Player.SpawnNewPlayer(username, client, local);
+        
+        // notify new joined player of existing players
+
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientMessageId.CurrentPlayerInfo);
+        message.AddInt(_clientPlayers.Count);
+        foreach (var player in _clientPlayers)
+        {
+            message.AddUShort(player.Key);
+            message.AddString(player.Value.username);
+        }
+        
+        Server.Send(message, client);
         
         _clientPlayers.Add(client, newPlayer);
         
         // notify all existing players of the new joined player
         
-        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientMessageId.NewPlayerJoined);
+        message = Message.Create(MessageSendMode.Reliable, ServerToClientMessageId.NewPlayerJoined);
         message.AddUShort(client);
         message.AddString(username);
-        
-        Server.SendToAll(message, client);
+
+        Server.SendToAll(message, Client.Id);
         
         ActionBar.Instance.NewOutput($"{username} joined the game");
     }
 
     public void ClientNewPlayerJoined(ushort client, string username)
     {
-        Player newPlayer = Player.SpawnNewPlayer(username, false);
+        Debug.Log($"Spawning new player {client}");
+        Player newPlayer = Player.SpawnNewPlayer(username, client, client == Client.Id);
         
         _clientPlayers.Add(client, newPlayer);
         
         ActionBar.Instance.NewOutput($"{username} joined the game");
+    }
+
+    public void CurrentPlayerInfo(Message message)
+    {
+        int length = message.GetInt();
+
+        if (length != 0)
+        {
+            for (int i = 0; i < length; i++)
+            {
+                ushort id = message.GetUShort();
+                Debug.Log($"Spawning new player {id}");
+                Player newPlayer = Player.SpawnNewPlayer(message.GetString(), id, id == Client.Id);
+                
+                _clientPlayers.Add(id, newPlayer);
+            }
+        }
     }
 
     private void FixedUpdate()

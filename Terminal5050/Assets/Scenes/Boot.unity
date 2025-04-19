@@ -168,8 +168,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   autoCreateLobby: 1
+  autoJoinLobby: 0
   port: 7777
   maxClientCount: 4
+  selfUsername: PayishVibes
 --- !u!1 &1357102783
 GameObject:
   m_ObjectHideFlags: 0

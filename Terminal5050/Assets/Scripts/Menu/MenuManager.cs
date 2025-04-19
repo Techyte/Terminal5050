@@ -14,6 +14,12 @@ public class MenuManager : MonoBehaviour
 
     private DateTime initTime;
 
+    private void Awake()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+    }
+
     private void Update()
     {
         if (joining)

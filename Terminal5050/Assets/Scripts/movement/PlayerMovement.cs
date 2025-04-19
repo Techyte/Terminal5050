@@ -44,6 +44,11 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
+        if (!_player.local)
+        {
+            return;
+        }
+        
         _grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, groundLayer);
         
         SpeedControl();
@@ -58,6 +63,11 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (!_player.local)
+        {
+            return;
+        }
+        
         if (!cancel)
         {
             MovePlayer();

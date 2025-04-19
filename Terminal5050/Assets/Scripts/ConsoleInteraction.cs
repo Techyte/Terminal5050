@@ -15,10 +15,16 @@ public class ConsoleInteraction : MonoBehaviour
 
     private bool _interacting = false;
     private bool _returning = false;
+
+    public void SetPlayer(Transform newPlayerCam, PlayerMovement movement)
+    {
+        playerCam = newPlayerCam;
+        player = movement;
+    }
     
     private void Update()
     {
-        if (!_interacting || !playerCam)
+        if (!_interacting && playerCam != null)
         {
             RaycastHit hit;
             if (Physics.Raycast(playerCam.transform.position, playerCam.transform.forward, out hit, maxDistance))
