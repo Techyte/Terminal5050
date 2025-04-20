@@ -80,6 +80,18 @@ public class MessageReceiver
         ChargePoint.ServerReceivedChargePoint(clientId);
     }
     
+    [MessageHandler(((ushort)ClientToServerMessageId.StartSpeakers))]
+    private static void ServerStartSpeakers(ushort clientId, Message message)
+    {
+        SpeakerManager.Instance.ServerSpeakersStarted(clientId, message.GetString());
+    }
+    
+    [MessageHandler(((ushort)ClientToServerMessageId.StopSpeakers))]
+    private static void ServerStopSpeakers(ushort clientId, Message message)
+    {
+        SpeakerManager.Instance.ServerSpeakersStopped();
+    }
+    
     // Also used to tell a client that just joined to spawn itself lol
     [MessageHandler(((ushort)ServerToClientMessageId.NewPlayerJoined))]
     private static void ClientNewPlayerJoined(Message message)
@@ -175,5 +187,17 @@ public class MessageReceiver
     private static void ClientChargePoint(Message message)
     {
         ChargePoint.ClientReceivedChargePoint(message.GetUShort());
+    }
+    
+    [MessageHandler(((ushort)ServerToClientMessageId.SpeakersStarted))]
+    private static void ClientSpeakersStarted(Message message)
+    {
+        SpeakerManager.Instance.ClientStartSpeakers(message.GetUShort(), message.GetString());
+    }
+    
+    [MessageHandler(((ushort)ServerToClientMessageId.SpeakersStopped))]
+    private static void ClientSpeakersStopped(Message message)
+    {
+        SpeakerManager.Instance.ClientStopSpeakers();
     }
 }

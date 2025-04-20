@@ -43,7 +43,6 @@ enum ServerToClientMessageId : ushort
     SpeakersStarted,
     SpeakersStopped,
     ChargePoint,
-    ChargingFinished,
 }
 
 public class NetworkManager : MonoBehaviour
@@ -51,7 +50,6 @@ public class NetworkManager : MonoBehaviour
     public static NetworkManager Instance;
     
     [SerializeField] private bool autoCreateLobby;
-    [SerializeField] private bool autoJoinLobby;
     [SerializeField] private ushort port;
     [SerializeField] private ushort maxClientCount = 4;
     [SerializeField] private string selfUsername = "PayishVibes";
@@ -68,27 +66,11 @@ public class NetworkManager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
-        
-        Client = new Client();
-        
-        SubscribeToHooks();
     }
 
     private void Start()
     {
-        if (autoCreateLobby)
-        {
-            Server = new Server();
-            Server.Start(port, maxClientCount);
-
-            _host = true;
-            
-            Client.Connect($"127.0.0.1:{port}");
-        }
-        else if (autoJoinLobby)
-        {
-            Client.Connect($"127.0.0.1:{port}");
-        }
+        Init(autoCreateLobby);
     }
 
     private void SubscribeToHooks()
@@ -103,6 +85,20 @@ public class NetworkManager : MonoBehaviour
         Client.Disconnected += ClientOnDisconnected;
         
         Client.ClientDisconnected += ClientOnClientDisconnected;
+    }
+
+    private void UnsubscribeFromHooks()
+    {
+        if (Server != null)
+        {
+            Server.ClientConnected -= ServerOnClientConnected;
+        }
+        
+        Client.Connected -= ClientOnConnected;
+        Client.ClientConnected -= ClientOnClientConnected;
+        Client.Disconnected -= ClientOnDisconnected;
+        
+        Client.ClientDisconnected -= ClientOnClientDisconnected;
     }
 
     private void ServerOnClientConnected(object sender, ServerConnectedEventArgs e)
@@ -127,6 +123,11 @@ public class NetworkManager : MonoBehaviour
 
     private void ClientOnDisconnected(object sender, DisconnectedEventArgs e)
     {
+        UnsubscribeFromHooks();
+        
+        Client = null;
+        Server = null;
+        
         SceneManager.LoadScene("MainMenu");
     }
 
@@ -134,6 +135,27 @@ public class NetworkManager : MonoBehaviour
     {
         Player.PlayerLeft(e.Id);
         players.Remove(e.Id);
+    }
+
+    public void Init(bool createLobby)
+    {
+        Client = new Client();
+        
+        if (createLobby)
+        {
+            Server = new Server();
+            Server.Start(port, maxClientCount);
+
+            _host = true;
+            
+            Client.Connect($"127.0.0.1:{port}");
+        }
+        else
+        {
+            Client.Connect($"127.0.0.1:{port}");
+        }
+        
+        SubscribeToHooks();
     }
     
     public void ServerReceivedClientBasicInfo(ushort client, string username)

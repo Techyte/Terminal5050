@@ -28,7 +28,7 @@ public class CMDManager : MonoBehaviour
 
     [HideInInspector] public float tfWaitTime = 0.1f;
 
-    public EventHandler<int> OnChoiceSelected;
+    public EventHandler<string> OnChoiceSelected;
     public EventHandler CreepyStart;
     public EventHandler CreepyEnd;
 
@@ -226,7 +226,7 @@ public class CMDManager : MonoBehaviour
         choosing = false;
         StopProcess();
         
-        OnChoiceSelected.Invoke(_sender, index);
+        OnChoiceSelected.Invoke(_sender, _options[index]);
     }
 
     private void ChoiceChanged()

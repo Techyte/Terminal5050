@@ -15,19 +15,6 @@ public class TerminalBehaviour : MonoBehaviour
         return !CMDManager.Instance.creepyOutputting;
     }));
 
-    private void Start()
-    {
-        CMDManager.Instance.OnChoiceSelected += OnChoiceSelected;
-    }
-
-    private void OnChoiceSelected(object sender, int e)
-    {
-        if (sender is TerminalBehaviour)
-        {
-            Debug.Log($"Terminal behaviour called the choice of {e}");
-        }
-    }
-
     public void PlayerPingedDoor(string id)
     {
         Output($"Door Pinged with id: {id}", Color.yellow);
@@ -134,7 +121,7 @@ public class TerminalBehaviour : MonoBehaviour
             case "stopspeaker":
                 CMDManager.Instance.StartProcess();
                 Output($"Stopping all speakers");
-                SpeakerManager.Instance.StopPlaying();
+                SpeakerManager.Instance.SendSpeakerStopMessage();
                 CMDManager.Instance.StopProcess();
                 break;
             case "power":

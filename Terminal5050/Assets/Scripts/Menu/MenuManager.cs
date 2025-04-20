@@ -26,6 +26,8 @@ public class MenuManager : MonoBehaviour
         {
             float progress = (float)(DateTime.Now - initTime).TotalSeconds / zoomTime;
             
+            Debug.Log(progress);
+            
             cam.position = Vector3.Lerp(camStart.position, target.position, progress);
         }
     }
@@ -43,10 +45,27 @@ public class MenuManager : MonoBehaviour
         JoinGame();
     }
 
+    private Scene _currentScene;
+
     private void JoinGame()
     {
         Debug.Log("loading game");
-        SceneManager.LoadScene("Game");
+        StartCoroutine(LoadAsynchronously("Game"));
+
+        _currentScene = SceneManager.GetActiveScene();
+    }
+
+    IEnumerator LoadAsynchronously(string levelToLoad)
+    {
+        // Set the loading of the level as an async operation
+        AsyncOperation operation = SceneManager.LoadSceneAsync(levelToLoad, LoadSceneMode.Single);
+
+        while(!operation.isDone)
+        {
+            yield return null;
+        }
+
+        SceneManager.UnloadSceneAsync(_currentScene);
     }
 
     public void StartHost()

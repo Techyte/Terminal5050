@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Riptide;
 using UnityEngine;
 
 public class SpeakerManager : MonoBehaviour
@@ -31,25 +32,22 @@ public class SpeakerManager : MonoBehaviour
         }
     }
 
-    private void OnChoiceSelected(object sender, int e)
+    private void OnChoiceSelected(object sender, string trackName)
     {
         if (sender is SpeakerManager)
         {
-            AudioClip selected = clips[e];
-            
-            StartPlaying(selected);
+            SendSpeakerStartMessage(Player.LocalPlayer.id, trackName);
             
             beep.Play();
         }
     }
-
-    private AudioClip[] clips;
+    
     private List<string> clipNames = new List<string>();
 
     public void OpenSpeakerScreen()
     {
         clipNames.Clear();
-        clips = Resources.LoadAll<AudioClip>("Music");
+        List<AudioClip> clips = Resources.LoadAll<AudioClip>("Music").ToList();
 
         foreach (var clip in clips)
         {
@@ -92,4 +90,75 @@ public class SpeakerManager : MonoBehaviour
             _speakers[i].StartPlayingNew(poweringDown);
         }
     }
+
+    #region StartSpeakers
+
+    private void SendSpeakerStartMessage(ushort id, string trackName)
+    {
+        if (NetworkManager.Instance.Server != null)
+        {
+            AudioClip selected = Resources.Load<AudioClip>($"Music/{trackName.Replace(".mp3", "")}");
+            
+            StartPlaying(selected);
+            
+            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientMessageId.SpeakersStarted);
+            message.AddUShort(id);
+            message.AddString(trackName);
+
+            NetworkManager.Instance.Server.SendToAll(message, Player.LocalPlayer.id);
+        }
+        else // client wants to notify the server
+        {
+            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerMessageId.StartSpeakers);
+            message.AddString(trackName);
+
+            NetworkManager.Instance.Client.Send(message);
+        }
+    }
+
+    public void ServerSpeakersStarted(ushort client, string trackName)
+    {
+        SendSpeakerStartMessage(client, trackName);
+    }
+
+    public void ClientStartSpeakers(ushort client, string trackName)
+    {
+        AudioClip selected = Resources.Load<AudioClip>($"Music/{trackName.Replace(".mp3", "")}");
+            
+        StartPlaying(selected);
+    }
+
+    #endregion
+    
+    #region StopSpeakers
+
+    public void SendSpeakerStopMessage()
+    {
+        if (NetworkManager.Instance.Server != null)
+        {
+            StopPlaying();
+            
+            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientMessageId.SpeakersStopped);
+
+            NetworkManager.Instance.Server.SendToAll(message, Player.LocalPlayer.id);
+        }
+        else // client wants to notify the server
+        {
+            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerMessageId.StopSpeakers);
+
+            NetworkManager.Instance.Client.Send(message);
+        }
+    }
+
+    public void ServerSpeakersStopped()
+    {
+        SendSpeakerStopMessage();
+    }
+
+    public void ClientStopSpeakers()
+    {
+        StopPlaying();
+    }
+
+    #endregion
 }
