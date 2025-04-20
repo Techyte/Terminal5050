@@ -118,9 +118,9 @@ public class WorldItem : Interactable
         Destroy(gameObject);
     }
 
-    public override void Interact(PersonalPowerManager pManager)
+    public override void Interact(Player player)
     {
-        Inventory inventory = pManager.GetComponent<Inventory>();
+        Inventory inventory = player.inventory;
 
         inventory.ItemWantToBePickedUp(this);
     }

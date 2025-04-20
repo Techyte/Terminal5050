@@ -14,6 +14,8 @@ public class PersonalPowerManager : MonoBehaviour
 
     private void Awake()
     {
+        charge = maxCharge;
+        
         _player = GetComponent<Player>();
         initialWidth = chargeDisplay.transform.GetComponent<RectTransform>().rect.width;
     }

@@ -34,6 +34,8 @@ public class PlayerPauseManager : MonoBehaviour
         {
             TogglePaused();
         }
+        
+        pausedUI.SetActive(_paused);
     }
 
     private void TogglePaused()
@@ -49,7 +51,6 @@ public class PlayerPauseManager : MonoBehaviour
         {
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
-            pausedUI.SetActive(true);
 
             movement.cancel = true;
             camController.cancel = true;
@@ -58,7 +59,6 @@ public class PlayerPauseManager : MonoBehaviour
         {
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
-            pausedUI.SetActive(false);
             
             movement.cancel = false;
             camController.cancel = false;

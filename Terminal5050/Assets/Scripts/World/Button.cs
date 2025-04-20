@@ -7,7 +7,7 @@ public class Button : Interactable
     [SerializeField] private Animator animator;
     [SerializeField] private AudioSource clickSound;
     
-    public override void Interact(PersonalPowerManager pManager)
+    public override void Interact(Player player)
     {
         clickEvent?.Invoke();
         Clicked();

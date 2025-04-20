@@ -1,8 +1,11 @@
 using System;
+using Riptide;
 using UnityEngine;
 
 public class ChargePoint : Interactable
 {
+    private static ChargePoint Instance;
+    
     [SerializeField] private Transform battery;
     [SerializeField] private Transform camViewLoc;
     [SerializeField] private float chargeSpeed;
@@ -13,17 +16,40 @@ public class ChargePoint : Interactable
 
     private bool _interacting = false;
 
+    private Player _currentPlayer;
+
     private PersonalPowerManager _pManager;
     private PlayerMovement _movement;
     private CameraController _cam;
 
     private void Awake()
     {
+        Instance = this;
         humming.volume = 0;
     }
 
-    public override void Interact(PersonalPowerManager pManager)
+    public override void Interact(Player player)
     {
+        if (player.local)
+        {
+            SendChargePointMessage(player.id);
+        }
+    }
+
+    private void Interacted(Player player)
+    {
+        if (_currentPlayer != null && _currentPlayer != player)
+        {
+            if (player.local)
+            {
+                ActionBar.Instance.NewOutput("Charge Point Occupied");
+                error.Play();
+            }
+            return;
+        }
+        
+        PersonalPowerManager pManager = player.powerManager;
+        
         if (_interacting)
         {
             GoBack();
@@ -31,20 +57,25 @@ public class ChargePoint : Interactable
         }
         else
         {
-            if (pManager.charge == pManager.maxCharge)
+            if (Mathf.Approximately(pManager.charge, pManager.maxCharge))
             {
-                ActionBar.Instance.NewOutput("Power Pack Full");
-                error.Play();
+                if (player.local)
+                {
+                    ActionBar.Instance.NewOutput("Power Pack Full");
+                    error.Play();
+                }
                 return;
             }
-
+            
             _cam = pManager.transform.parent.GetComponentInChildren<CameraController>();
-            _movement = pManager.GetComponent<PlayerMovement>();
+            _movement = player.movement;
+            battery = player.powerManager.batteryLocation.GetChild(0);
             
             PowerManager.Instance.NewDrain("Charging", chargeSpeed);
             _interacting = true;
             initTime = DateTime.Now;
             
+            _currentPlayer = player;
             _pManager = pManager;
             _clicked = false;
         }
@@ -58,12 +89,20 @@ public class ChargePoint : Interactable
             
             float amountToGain = chargeSpeed * Time.deltaTime;
 
-            bool local = _pManager.GetComponent<Player>().local;
+            bool local = _currentPlayer.local;
             
             if (_pManager.charge + amountToGain >= _pManager.maxCharge)
             {
-                PowerManager.Instance.ChangeCharge(-(_pManager.maxCharge - _pManager.charge));
-                _pManager.charge = _pManager.maxCharge;
+                if (_currentPlayer.local)
+                {
+                    _pManager.charge = _pManager.maxCharge;
+                }
+
+                if (NetworkManager.Instance.Server != null)
+                {
+                    PowerManager.Instance.ChangeCharge(-(_pManager.maxCharge - _pManager.charge));
+                }
+                
                 GoBack();
                 if (local)
                     ActionBar.Instance.NewOutput("Finished Charging");
@@ -76,9 +115,15 @@ public class ChargePoint : Interactable
             }
             else
             {
-                _pManager.charge += amountToGain;
-                if (local)
+                if (_currentPlayer.local)
+                {
+                    _pManager.charge += amountToGain;
+                }
+                
+                if (NetworkManager.Instance.Server != null)
+                {
                     PowerManager.Instance.ChangeCharge(-amountToGain);
+                }
             }
         }
     }
@@ -88,6 +133,8 @@ public class ChargePoint : Interactable
 
     private void Slotted()
     {
+        Debug.Log("Slotting");
+        
         _movement.cancel = true;
         _cam.cancel = true;
         
@@ -119,5 +166,50 @@ public class ChargePoint : Interactable
         _cam.cancel = false;
         humming.volume = 0;
         PowerManager.Instance.RemoveDrain("Charging");
+        _pManager = null;
+        _currentPlayer = null;
+    }
+
+    public static void SendChargePointMessage(ushort id)
+    {
+        // host
+        if (NetworkManager.Instance.Server != null)
+        {
+            if (NetworkManager.Instance.players.TryGetValue(id, out Player player))
+            {
+                Instance.Interacted(player);
+            }
+            
+            Debug.Log("Server sending charge point message");
+            
+            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientMessageId.ChargePoint);
+            message.AddUShort(id);
+
+            NetworkManager.Instance.Server.SendToAll(message, Player.LocalPlayer.id);
+        }
+        else // client wants to notify the server
+        {
+            Debug.Log("Client sending charge point message");
+            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerMessageId.ChargePoint);
+
+            NetworkManager.Instance.Client.Send(message);
+        }
+    }
+
+    public static void ServerReceivedChargePoint(ushort id)
+    {
+        Debug.Log("Server received charge point message");
+        
+        SendChargePointMessage(id);
+    }
+
+    public static void ClientReceivedChargePoint(ushort id)
+    {
+        Debug.Log("Client received charge point message");
+        
+        if (NetworkManager.Instance.players.TryGetValue(id, out Player player))
+        {
+            Instance.Interacted(player);
+        }
     }
 }

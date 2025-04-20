@@ -16,6 +16,7 @@ public class Player : MonoBehaviour
     [HideInInspector] public PersonalPowerManager powerManager;
     [HideInInspector] public Inventory inventory;
     [HideInInspector] public TorchManager tManager;
+    [HideInInspector] public PlayerMovement movement;
 
     private void Awake()
     {
@@ -23,6 +24,7 @@ public class Player : MonoBehaviour
         powerManager = GetComponent<PersonalPowerManager>();
         inventory = GetComponent<Inventory>();
         tManager = GetComponent<TorchManager>();
+        movement = GetComponent<PlayerMovement>();
     }
 
     public static Player SpawnNewPlayer(string username, ushort id, bool local)

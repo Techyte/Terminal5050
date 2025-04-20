@@ -114,7 +114,15 @@ public class TerminalBehaviour : MonoBehaviour
                 if (parts.Length > 1)
                 {
                     Output($"Toggling door {parts[1]}");
-                    DoorManager.Instance.ToggleDoor(parts[1]);
+                    Door door = Door.FindDoorById(parts[1]);
+                    if (door != null)
+                    {
+                        DoorManager.SendDoorToggleMessage(Player.LocalPlayer.id, door.id, !door.open);
+                    }
+                    else
+                    {
+                        Output($"Please provide a valid door id");
+                    }
                     beep.Play();
                 }
                 else

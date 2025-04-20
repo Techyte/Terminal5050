@@ -28,9 +28,9 @@ public class Door : MonoBehaviour
         }
     }
 
-    public void Toggle()
+    public void Toggle(bool newState)
     {
-        open = !open;
+        open = newState;
 
         if (open)
         {

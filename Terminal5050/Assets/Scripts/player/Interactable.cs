@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class Interactable : MonoBehaviour
 {
-    public virtual void Interact(PersonalPowerManager pManager)
+    public virtual void Interact(Player player)
     {
         
     }

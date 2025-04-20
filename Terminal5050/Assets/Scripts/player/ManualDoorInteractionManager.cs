@@ -60,7 +60,7 @@ public class ManualDoorInteractionManager : MonoBehaviour
                 {
                     for (int i = 0; i < interactHit.Length; i++)
                     {
-                        interactHit[i].Interact(_player.powerManager);
+                        interactHit[i].Interact(_player);
                     }
                 }
             }

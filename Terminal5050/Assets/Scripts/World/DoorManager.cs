@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Riptide;
 using UnityEngine;
 
 public class DoorManager : MonoBehaviour
@@ -22,11 +23,11 @@ public class DoorManager : MonoBehaviour
         }
     }
 
-    public void ToggleDoor(string id)
+    public void ToggleDoor(string id, bool newState)
     {
         if (_doors.TryGetValue(id, out Door door))
         {
-            door.Toggle();
+            door.Toggle(newState);
             if (door.open)
             {
                 PowerManager.Instance.NewDrain($"Door {id}", 5);
@@ -48,8 +49,42 @@ public class DoorManager : MonoBehaviour
         {
             if (resetDoor.open)
             {
-                ToggleDoor(resetDoor.id);
+                Instance.ToggleDoor(resetDoor.id, false);
             }
         }
+    }
+
+    public static void SendDoorToggleMessage(ushort id, string doorId, bool newState)
+    {
+        // host
+        if (NetworkManager.Instance.Server != null)
+        {
+            Instance.ToggleDoor(doorId, newState);
+            
+            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientMessageId.DoorToggled);
+            message.AddUShort(id);
+            message.AddString(doorId);
+            message.AddBool(newState);
+
+            NetworkManager.Instance.Server.SendToAll(message, Player.LocalPlayer.id);
+        }
+        else // client wants to notify the server
+        {
+            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerMessageId.ToggleDoor);
+            message.AddString(doorId);
+            message.AddBool(newState);
+
+            NetworkManager.Instance.Client.Send(message);
+        }
+    }
+
+    public static  void ServerReceivedToggleDoor(ushort id, string doorId, bool newState)
+    {
+        SendDoorToggleMessage(id, doorId, newState);
+    }
+
+    public static  void ClientReceivedDoorToggled(ushort id, string doorId, bool newState)
+    {
+        Instance.ToggleDoor(doorId, newState);
     }
 }

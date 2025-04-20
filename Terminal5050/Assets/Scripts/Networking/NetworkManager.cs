@@ -20,6 +20,7 @@ enum ClientToServerMessageId : ushort
     ToggleDoor,
     StartSpeakers,
     StopSpeakers,
+    ChargePoint,
 }
 
 enum ServerToClientMessageId : ushort
@@ -41,6 +42,8 @@ enum ServerToClientMessageId : ushort
     DoorToggled,
     SpeakersStarted,
     SpeakersStopped,
+    ChargePoint,
+    ChargingFinished,
 }
 
 public class NetworkManager : MonoBehaviour

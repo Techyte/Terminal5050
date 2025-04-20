@@ -22,7 +22,7 @@ public class Inventory : MonoBehaviour
     
     public int selectedIndex = 0;
     [HideInInspector] public Item largeItem;
-    public Item[] smallItems;
+    [HideInInspector] public Item[] smallItems;
 
     private GameObject _currentItemDisplay;
 

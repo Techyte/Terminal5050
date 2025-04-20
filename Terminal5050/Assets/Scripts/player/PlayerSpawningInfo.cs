@@ -193,7 +193,7 @@ public class PlayerSpawningInfo : MonoBehaviour
                     if (!player.local)
                     {
                         player.powerManager.charge = charge;
-                        player.powerManager.charge = maxCharge;
+                        player.powerManager.maxCharge = maxCharge;
                     }
                 }
             }

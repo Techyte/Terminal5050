@@ -68,6 +68,18 @@ public class MessageReceiver
         TorchManager.ServerReceivedToggleItem(clientId, message.GetBool());
     }
     
+    [MessageHandler(((ushort)ClientToServerMessageId.ToggleDoor))]
+    private static void ServerToggleDoor(ushort clientId, Message message)
+    {
+        DoorManager.ServerReceivedToggleDoor(clientId, message.GetString(), message.GetBool());
+    }
+    
+    [MessageHandler(((ushort)ClientToServerMessageId.ChargePoint))]
+    private static void ServerChargePoint(ushort clientId, Message message)
+    {
+        ChargePoint.ServerReceivedChargePoint(clientId);
+    }
+    
     // Also used to tell a client that just joined to spawn itself lol
     [MessageHandler(((ushort)ServerToClientMessageId.NewPlayerJoined))]
     private static void ClientNewPlayerJoined(Message message)
@@ -151,5 +163,17 @@ public class MessageReceiver
     private static void ClientDoorPinged(Message message)
     {
         DoorIndicator.ClientReceivedItemToggled(message.GetUShort(), message.GetString());
+    }
+    
+    [MessageHandler(((ushort)ServerToClientMessageId.DoorToggled))]
+    private static void ClientDoorToggled(Message message)
+    {
+        DoorManager.ClientReceivedDoorToggled(message.GetUShort(), message.GetString(), message.GetBool());
+    }
+    
+    [MessageHandler(((ushort)ServerToClientMessageId.ChargePoint))]
+    private static void ClientChargePoint(Message message)
+    {
+        ChargePoint.ClientReceivedChargePoint(message.GetUShort());
     }
 }

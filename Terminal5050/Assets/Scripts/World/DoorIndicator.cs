@@ -14,9 +14,9 @@ public class DoorIndicator : Interactable
         text.text = sourceDoor.id;
     }
 
-    public override void Interact(PersonalPowerManager pManager)
+    public override void Interact(Player player)
     {
-        Inventory inventory = pManager.GetComponent<Inventory>();
+        Inventory inventory = player.inventory;
         if (inventory.smallItems[inventory.selectedIndex].template.name == "Scanner")
         {
             SendDoorPingMessage(Player.LocalPlayer.id, sourceDoor.id);
