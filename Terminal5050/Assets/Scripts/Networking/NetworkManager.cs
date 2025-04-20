@@ -63,23 +63,31 @@ public class NetworkManager : MonoBehaviour
     public Server Server;
     public Client Client;
 
+    private bool _wantToInit;
+    private bool _wantToAutoCreateLobby;
+
     private void Awake()
     {
         Instance = this;
+        SceneManager.sceneLoaded += SceneLoaded;
     }
 
-    private void Start()
+    private void SceneLoaded(Scene arg0, LoadSceneMode arg1)
     {
-        Init(autoCreateLobby);
-    }
-
-    private void SubscribeToHooks()
-    {
-        if (Server != null)
+        if (_wantToInit)
         {
-            Server.ClientConnected += ServerOnClientConnected;
+            Init(_wantToAutoCreateLobby);
+            _wantToInit = false;
         }
-        
+    }
+
+    private void SubscribeToServerHooks()
+    {
+        Server.ClientConnected += ServerOnClientConnected;
+    }
+
+    private void SubscribeToClientHooks()
+    {
         Client.Connected += ClientOnConnected;
         Client.ClientConnected += ClientOnClientConnected;
         Client.Disconnected += ClientOnDisconnected;
@@ -125,8 +133,15 @@ public class NetworkManager : MonoBehaviour
     {
         UnsubscribeFromHooks();
         
+        if (Server != null)
+        {
+            Server.Stop();
+        }
+
         Client = null;
         Server = null;
+        
+        players.Clear();
         
         SceneManager.LoadScene("MainMenu");
     }
@@ -137,25 +152,27 @@ public class NetworkManager : MonoBehaviour
         players.Remove(e.Id);
     }
 
-    public void Init(bool createLobby)
+    public void RegisterInit(bool createLobby)
+    {
+        _wantToInit = true;
+        _wantToAutoCreateLobby = createLobby;
+    }
+
+    private void Init(bool createLobby)
     {
         Client = new Client();
+        SubscribeToClientHooks();
         
         if (createLobby)
         {
             Server = new Server();
+            SubscribeToServerHooks();
             Server.Start(port, maxClientCount);
 
             _host = true;
-            
-            Client.Connect($"127.0.0.1:{port}");
-        }
-        else
-        {
-            Client.Connect($"127.0.0.1:{port}");
         }
         
-        SubscribeToHooks();
+        Client.Connect($"127.0.0.1:{port}");
     }
     
     public void ServerReceivedClientBasicInfo(ushort client, string username)
@@ -243,5 +260,7 @@ public class NetworkManager : MonoBehaviour
         {
             Client.Disconnect();
         }
+        
+        SceneManager.sceneLoaded -= SceneLoaded;
     }
 }

@@ -67,6 +67,7 @@ public class PlayerPauseManager : MonoBehaviour
 
     public void Quit()
     {
+        NetworkManager.Instance.Client.Disconnect();
         SceneManager.LoadScene("MainMenu");
     }
 

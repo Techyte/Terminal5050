@@ -26,8 +26,6 @@ public class MenuManager : MonoBehaviour
         {
             float progress = (float)(DateTime.Now - initTime).TotalSeconds / zoomTime;
             
-            Debug.Log(progress);
-            
             cam.position = Vector3.Lerp(camStart.position, target.position, progress);
         }
     }
@@ -49,7 +47,7 @@ public class MenuManager : MonoBehaviour
 
     private void JoinGame()
     {
-        Debug.Log("loading game");
+        NetworkManager.Instance.RegisterInit(true);
         StartCoroutine(LoadAsynchronously("Game"));
 
         _currentScene = SceneManager.GetActiveScene();
