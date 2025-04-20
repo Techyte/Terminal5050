@@ -9,6 +9,8 @@ public class PlayerPauseManager : MonoBehaviour
 
     private bool _paused;
 
+    public bool Paused => _paused;
+
     private Player _player;
 
     private void Awake()

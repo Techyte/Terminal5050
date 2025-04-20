@@ -15,12 +15,14 @@ public class Player : MonoBehaviour
     [HideInInspector] public PlayerRotationManager rotationManager;
     [HideInInspector] public PersonalPowerManager powerManager;
     [HideInInspector] public Inventory inventory;
+    [HideInInspector] public TorchManager tManager;
 
     private void Awake()
     {
         rotationManager = GetComponentInChildren<PlayerRotationManager>();
         powerManager = GetComponent<PersonalPowerManager>();
         inventory = GetComponent<Inventory>();
+        tManager = GetComponent<TorchManager>();
     }
 
     public static Player SpawnNewPlayer(string username, ushort id, bool local)

@@ -86,7 +86,7 @@ public class PlayerSpawningInfo : MonoBehaviour
         {
             posRotMessage.AddUShort(player.id);
             posRotMessage.AddVector3(player.transform.position);
-            posRotMessage.AddQuaternion(player.rotationManager.transform.rotation);
+            posRotMessage.AddQuaternion(player.rotationManager.cam.transform.rotation);
         }
         
         NetworkManager.Instance.Server.SendToAll(posRotMessage, Player.LocalPlayer.id);

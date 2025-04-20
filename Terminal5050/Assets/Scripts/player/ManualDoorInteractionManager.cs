@@ -13,17 +13,19 @@ public class ManualDoorInteractionManager : MonoBehaviour
     private Inventory _inventory;
 
     private Player _player;
+    private PlayerPauseManager _pause;
 
     private void Awake()
     {
         _player = GetComponent<Player>();
         
         _inventory = GetComponent<Inventory>();
+        _pause = GetComponent<PlayerPauseManager>();
     }
     
     private void Update()
     {
-        if (!_player.local)
+        if (!_player.local || _pause.Paused)
             return;
         
         RaycastHit hit;

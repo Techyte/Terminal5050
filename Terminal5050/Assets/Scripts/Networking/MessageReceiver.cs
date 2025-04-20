@@ -32,6 +32,12 @@ public class MessageReceiver
         CameraManager.Instance.ServerReceivedSwitchCameras();
     }
     
+    [MessageHandler(((ushort)ClientToServerMessageId.PingDoor))]
+    private static void ServerPingDoor(ushort clientId, Message message)
+    {
+        DoorIndicator.ServerReceivedToggleItem(clientId, message.GetString());
+    }
+    
     [MessageHandler(((ushort)ClientToServerMessageId.ActivateCamera))]
     private static void ServerActivateCamera(ushort clientId, Message message)
     {
@@ -54,6 +60,12 @@ public class MessageReceiver
     private static void ServerDropItem(ushort clientId, Message message)
     {
         Inventory.ServerDropItem(clientId, message.GetBool(), message.GetInt());
+    }
+    
+    [MessageHandler(((ushort)ClientToServerMessageId.ToggleItem))]
+    private static void ServerToggleItem(ushort clientId, Message message)
+    {
+        TorchManager.ServerReceivedToggleItem(clientId, message.GetBool());
     }
     
     // Also used to tell a client that just joined to spawn itself lol
@@ -127,5 +139,17 @@ public class MessageReceiver
     private static void ClientItemDropped(Message message)
     {
         Inventory.ClientDropItem(message.GetUShort(), message.GetBool(), message.GetInt(), message.GetString());
+    }
+    
+    [MessageHandler(((ushort)ServerToClientMessageId.ItemToggled))]
+    private static void ClientItemToggled(Message message)
+    {
+        TorchManager.ClientReceivedItemToggled(message.GetUShort(), message.GetBool());
+    }
+    
+    [MessageHandler(((ushort)ServerToClientMessageId.DoorPinged))]
+    private static void ClientDoorPinged(Message message)
+    {
+        DoorIndicator.ClientReceivedItemToggled(message.GetUShort(), message.GetString());
     }
 }

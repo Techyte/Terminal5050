@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 public class Door : MonoBehaviour
@@ -13,6 +12,13 @@ public class Door : MonoBehaviour
     [SerializeField] private float speed;
     public bool open;
     public int powerLoad = 50;
+
+    public DoorIndicator indicator;
+
+    private void Awake()
+    {
+        indicator = transform.parent.GetComponentInChildren<DoorIndicator>();
+    }
 
     private void OnValidate()
     {
@@ -46,5 +52,18 @@ public class Door : MonoBehaviour
         {
             doorObject.position = Vector3.Lerp(doorObject.position, closedPos.position, speed * Time.deltaTime);
         }
+    }
+
+    public static Door FindDoorById(string id)
+    {
+        foreach (var door in FindObjectsOfType<Door>())
+        {
+            if (door.id == id)
+            {
+                return door;
+            }
+        }
+
+        return null;
     }
 }
