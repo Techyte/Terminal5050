@@ -49215,6 +49215,7 @@ MonoBehaviour:
   speed: 2
   open: 0
   powerLoad: 50
+  indicator: {fileID: 0}
 --- !u!1 &1516819477
 GameObject:
   m_ObjectHideFlags: 0

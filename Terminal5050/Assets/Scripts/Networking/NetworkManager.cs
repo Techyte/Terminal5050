@@ -91,8 +91,8 @@ public class NetworkManager : MonoBehaviour
         Client.Connected += ClientOnConnected;
         Client.ClientConnected += ClientOnClientConnected;
         Client.Disconnected += ClientOnDisconnected;
-        
         Client.ClientDisconnected += ClientOnClientDisconnected;
+        Client.ConnectionFailed += ClientOnConnectionFailed;
     }
 
     private void UnsubscribeFromHooks()
@@ -105,8 +105,8 @@ public class NetworkManager : MonoBehaviour
         Client.Connected -= ClientOnConnected;
         Client.ClientConnected -= ClientOnClientConnected;
         Client.Disconnected -= ClientOnDisconnected;
-        
         Client.ClientDisconnected -= ClientOnClientDisconnected;
+        Client.ConnectionFailed -= ClientOnConnectionFailed;
     }
 
     private void ServerOnClientConnected(object sender, ServerConnectedEventArgs e)
@@ -116,6 +116,8 @@ public class NetworkManager : MonoBehaviour
 
     private void ClientOnConnected(object sender, EventArgs e)
     {
+        LoadingScreen.Loaded();
+        
         Debug.Log("Client registered its own connection");
         
         Message message = Message.Create(MessageSendMode.Reliable, ClientToServerMessageId.BasicInfo);
@@ -129,7 +131,17 @@ public class NetworkManager : MonoBehaviour
         
     }
 
+    private void ClientOnConnectionFailed(object sender, ConnectionFailedEventArgs e)
+    {
+        ConnectionTerminated();
+    }
+
     private void ClientOnDisconnected(object sender, DisconnectedEventArgs e)
+    {
+        ConnectionTerminated();
+    }
+
+    private void ConnectionTerminated()
     {
         UnsubscribeFromHooks();
         

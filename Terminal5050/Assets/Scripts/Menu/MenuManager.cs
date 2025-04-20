@@ -12,12 +12,19 @@ public class MenuManager : MonoBehaviour
     
     private bool joining;
 
+    private bool _hosting;
+
     private DateTime initTime;
 
     private void Awake()
     {
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+    }
+
+    private void Start()
+    {
+        LoadingScreen.Loaded();
     }
 
     private void Update()
@@ -47,7 +54,7 @@ public class MenuManager : MonoBehaviour
 
     private void JoinGame()
     {
-        NetworkManager.Instance.RegisterInit(true);
+        NetworkManager.Instance.RegisterInit(_hosting);
         StartCoroutine(LoadAsynchronously("Game"));
 
         _currentScene = SceneManager.GetActiveScene();
@@ -69,10 +76,12 @@ public class MenuManager : MonoBehaviour
     public void StartHost()
     {
         StartMoving();
+        _hosting = true;
     }
 
     public void StartJoin()
     {
         StartMoving();
+        _hosting = false;
     }
 }
