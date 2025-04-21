@@ -1,4 +1,5 @@
 using System.Collections;
+using Steamworks;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using Random = UnityEngine.Random;
@@ -127,6 +128,19 @@ public class TerminalBehaviour : MonoBehaviour
             case "power":
                 CMDManager.Instance.StartProcess();
                 CMDManager.Instance.StartShowingPowerInfo();
+                CMDManager.Instance.StopProcess();
+                break;
+            case "steam":
+                CMDManager.Instance.StartProcess();
+                if (SteamManager.Initialized)
+                {
+                    CMDManager.Instance.Output($"Steam lobby id: {NetworkManager.Instance.GetLobbyId().ToString()}");
+                    CMDManager.Instance.Output($"Steam player {SteamFriends.GetPersonaName()} id: {SteamUser.GetSteamID().ToString()}");
+                }
+                else
+                {
+                    CMDManager.Instance.Output($"Steam Manager is not initialised");
+                }
                 CMDManager.Instance.StopProcess();
                 break;
             default:

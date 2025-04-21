@@ -1,8 +1,12 @@
 using System;
 using System.Collections.Generic;
 using Riptide;
+using Riptide.Transports.Steam;
+using Riptide.Utils;
+using Steamworks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using SteamClient = Riptide.Transports.Steam.SteamClient;
 
 enum ClientToServerMessageId : ushort
 {
@@ -63,20 +67,31 @@ public class NetworkManager : MonoBehaviour
     public Server Server;
     public Client Client;
 
+    public bool usingSteam;
+
+    private CSteamID _currentLobbyId;
+
     private bool _wantToInit;
     private bool _wantToAutoCreateLobby;
+    private bool _wantToUseSteam;
 
     private void Awake()
     {
         Instance = this;
         SceneManager.sceneLoaded += SceneLoaded;
+        
+#if UNITY_EDITOR
+        RiptideLogger.Initialize(Debug.Log, Debug.Log, Debug.LogWarning, Debug.LogError, false);
+#else
+            RiptideLogger.Initialize(Debug.Log, true);
+#endif
     }
 
     private void SceneLoaded(Scene arg0, LoadSceneMode arg1)
     {
         if (_wantToInit)
         {
-            Init(_wantToAutoCreateLobby);
+            Init(_wantToAutoCreateLobby, _wantToUseSteam);
             _wantToInit = false;
         }
     }
@@ -121,7 +136,14 @@ public class NetworkManager : MonoBehaviour
         Debug.Log("Client registered its own connection");
         
         Message message = Message.Create(MessageSendMode.Reliable, ClientToServerMessageId.BasicInfo);
-        message.AddString(selfUsername);
+        if (usingSteam)
+        {
+            message.AddString(SteamFriends.GetPersonaName());
+        }
+        else
+        {
+            message.AddString(selfUsername);
+        }
 
         Client.Send(message);
     }
@@ -164,27 +186,75 @@ public class NetworkManager : MonoBehaviour
         players.Remove(e.Id);
     }
 
-    public void RegisterInit(bool createLobby)
+    public void SetLobbyId(CSteamID lobbyId)
+    {
+        _currentLobbyId = lobbyId;
+    }
+
+    public CSteamID GetLobbyId()
+    {
+        return _currentLobbyId;
+    }
+
+    public void RegisterInit(bool createLobby, bool useSteam)
     {
         _wantToInit = true;
         _wantToAutoCreateLobby = createLobby;
+        _wantToUseSteam = useSteam;
     }
 
-    private void Init(bool createLobby)
+    private void Init(bool createLobby, bool useSteam)
     {
-        Client = new Client();
-        SubscribeToClientHooks();
+        SteamServer steamServer = new SteamServer();
         
         if (createLobby)
         {
-            Server = new Server();
+            if (useSteam)
+            {
+                Debug.Log("Starting server with steam processes");
+                Server = new Server(steamServer);
+                Server.Start(0, maxClientCount);
+            }
+            else
+            {
+                Server = new Server();
+                Server.Start(port, maxClientCount);
+            }
             SubscribeToServerHooks();
-            Server.Start(port, maxClientCount);
 
             _host = true;
         }
         
-        Client.Connect($"127.0.0.1:{port}");
+        if (useSteam)
+        {
+            Debug.Log("Starting client with steam processes");
+            Client = new Client(new SteamClient(steamServer));
+        }
+        else
+        {
+            Client = new Client();
+        }
+        SubscribeToClientHooks();
+
+        if (useSteam && createLobby)
+        {
+            Debug.Log("Joining a hosted game with steam processes");
+            Client.Connect($"127.0.0.1");
+        }
+        else if (useSteam)
+        {
+            Debug.Log("Joining a non hosted game with steam processes");
+            CSteamID hostId = SteamMatchmaking.GetLobbyOwner(_currentLobbyId);
+            
+            Client.Connect(hostId.ToString());
+        }
+        else // not using steam, we could be hosting but it doesent matter
+        {
+            Debug.Log("Joining without steam");
+            Client.Connect($"127.0.0.1:{port}");
+        }
+
+        usingSteam = useSteam;
     }
     
     public void ServerReceivedClientBasicInfo(ushort client, string username)
@@ -250,6 +320,11 @@ public class NetworkManager : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (usingSteam && !SteamManager.Initialized)
+        {
+            return;
+        }
+        
         if (Server != null)
         {
             Server.Update();

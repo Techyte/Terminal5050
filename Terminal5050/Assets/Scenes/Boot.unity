@@ -171,6 +171,7 @@ MonoBehaviour:
   port: 7777
   maxClientCount: 4
   selfUsername: PayishVibes
+  usingSteam: 0
 --- !u!1 &538438038
 GameObject:
   m_ObjectHideFlags: 0
@@ -264,6 +265,7 @@ MonoBehaviour:
   dontDestroyObjects:
   - {fileID: 82638890}
   - {fileID: 538438038}
+  - {fileID: 1840189361}
   sceneToLoad: MainMenu
 --- !u!1 &1648542190 stripped
 GameObject:
@@ -283,6 +285,34 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 538438039}
     m_Modifications:
+    - target: {fileID: 1467380286045500459, guid: 1f2fdd28862b85a41ad24c2195e8718c, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: c53cad87f8e29f844a425dd8a5e8de9b, type: 2}
+    - target: {fileID: 1467380286045500459, guid: 1f2fdd28862b85a41ad24c2195e8718c, type: 3}
+      propertyPath: m_fontStyle
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1467380286045500459, guid: 1f2fdd28862b85a41ad24c2195e8718c, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 8813399539576158801, guid: c53cad87f8e29f844a425dd8a5e8de9b, type: 2}
+    - target: {fileID: 1467380286045500459, guid: 1f2fdd28862b85a41ad24c2195e8718c, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2095679775964137617, guid: 1f2fdd28862b85a41ad24c2195e8718c, type: 3}
+      propertyPath: m_UiScaleMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2095679775964137617, guid: 1f2fdd28862b85a41ad24c2195e8718c, type: 3}
+      propertyPath: m_ReferenceResolution.x
+      value: 1920
+      objectReference: {fileID: 0}
+    - target: {fileID: 2095679775964137617, guid: 1f2fdd28862b85a41ad24c2195e8718c, type: 3}
+      propertyPath: m_ReferenceResolution.y
+      value: 1080
+      objectReference: {fileID: 0}
     - target: {fileID: 4076933021364804439, guid: 1f2fdd28862b85a41ad24c2195e8718c, type: 3}
       propertyPath: m_Name
       value: LoadingScreen
@@ -333,6 +363,50 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1f2fdd28862b85a41ad24c2195e8718c, type: 3}
+--- !u!1 &1840189361
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1840189362}
+  - component: {fileID: 1840189363}
+  m_Layer: 0
+  m_Name: SteamManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1840189362
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1840189361}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 5.842707, y: 0.50604755, z: 0.31877664}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1840189363
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1840189361}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef4bffeda13d7a748973ff9204401c07, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -340,3 +414,4 @@ SceneRoots:
   - {fileID: 1357102784}
   - {fileID: 82638891}
   - {fileID: 538438039}
+  - {fileID: 1840189362}
