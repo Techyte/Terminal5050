@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -25,6 +26,14 @@ public class WorldItem : Interactable
         if (_item == null)
         {
             Init(new Item(defaultItem));
+        }
+    }
+
+    private void OnValidate()
+    {
+        if (string.IsNullOrEmpty(id))
+        {
+            id = GenerateId();
         }
     }
 
