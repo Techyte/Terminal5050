@@ -17,3 +17,5 @@ MonoBehaviour:
   model: {fileID: 5593680327138785193, guid: f7eb765c3a3c1c84790f5ffb2659db37, type: 3}
   sprite: {fileID: 21300000, guid: 33bbe05623c483c48ad2b99966ac8cba, type: 3}
   mesh: {fileID: -6733638604586257316, guid: 394f5378cb1f34e4f884f7095951222f, type: 3}
+  canBeSold: 0
+  sellPrice: 0

@@ -143,13 +143,27 @@ public class MenuManager : MonoBehaviour
 
     public void StartHost()
     {
-        SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypeFriendsOnly, 4);
+        if (useSteam.isOn)
+        {
+            SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypeFriendsOnly, 4);
+        }
+        else
+        {
+            StartMoving();
+        }
         _hosting = true;
     }
 
     public void StartJoin()
     {
-        SteamMatchmaking.JoinLobby((CSteamID)ulong.Parse(lobbyIdText.text));
+        if (useSteam.isOn)
+        {
+            SteamMatchmaking.JoinLobby((CSteamID)ulong.Parse(lobbyIdText.text));
+        }
+        else
+        {
+            StartMoving();
+        }
         _hosting = false;
     }
 
@@ -157,5 +171,10 @@ public class MenuManager : MonoBehaviour
     {
         LobbyEnter.Dispose();
         LobbyJoinRequested.Dispose();
+    }
+
+    public void Quit()
+    {
+        Application.Quit();
     }
 }

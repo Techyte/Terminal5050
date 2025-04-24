@@ -94,6 +94,11 @@ public class Inventory : MonoBehaviour
         UpdateSelected();
     }
 
+    public void UpdateSelectedItem()
+    {
+        UpdateSelected();
+    }
+
     private void UpdateSelected()
     {
         if (_currentItemDisplay)

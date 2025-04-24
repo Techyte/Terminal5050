@@ -92,6 +92,12 @@ public class MessageReceiver
         SpeakerManager.Instance.ServerSpeakersStopped();
     }
     
+    [MessageHandler(((ushort)ClientToServerMessageId.DepositItem))]
+    private static void ServerDepositItem(ushort clientId, Message message)
+    {
+        Depositer.ServerReceivedDepositItem(clientId, message.GetInt(), message.GetInt());
+    }
+    
     // Also used to tell a client that just joined to spawn itself lol
     [MessageHandler(((ushort)ServerToClientMessageId.NewPlayerJoined))]
     private static void ClientNewPlayerJoined(Message message)
@@ -199,5 +205,11 @@ public class MessageReceiver
     private static void ClientSpeakersStopped(Message message)
     {
         SpeakerManager.Instance.ClientStopSpeakers();
+    }
+    
+    [MessageHandler(((ushort)ServerToClientMessageId.ItemDeposited))]
+    private static void ClientItemDeposited(Message message)
+    {
+        Depositer.ClientReceivedItemDeposited(message.GetUShort(), message.GetInt(), message.GetInt());
     }
 }

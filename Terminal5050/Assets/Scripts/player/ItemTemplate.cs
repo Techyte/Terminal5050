@@ -8,6 +8,8 @@ public class ItemTemplate : ScriptableObject
     public GameObject model;
     public Sprite sprite;
     public Mesh mesh;
+    public bool canBeSold;
+    public int sellPrice;
 }
 
 public enum Type

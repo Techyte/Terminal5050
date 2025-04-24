@@ -25,6 +25,7 @@ enum ClientToServerMessageId : ushort
     StartSpeakers,
     StopSpeakers,
     ChargePoint,
+    DepositItem,
 }
 
 enum ServerToClientMessageId : ushort
@@ -47,6 +48,7 @@ enum ServerToClientMessageId : ushort
     SpeakersStarted,
     SpeakersStopped,
     ChargePoint,
+    ItemDeposited,
 }
 
 public class NetworkManager : MonoBehaviour
