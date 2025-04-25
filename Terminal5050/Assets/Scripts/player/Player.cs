@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -17,6 +19,7 @@ public class Player : MonoBehaviour
     [HideInInspector] public Inventory inventory;
     [HideInInspector] public TorchManager tManager;
     [HideInInspector] public PlayerMovement movement;
+    [HideInInspector] public PlayerAnimationManager playerAnimationManager;
 
     private void Awake()
     {
@@ -25,6 +28,7 @@ public class Player : MonoBehaviour
         inventory = GetComponent<Inventory>();
         tManager = GetComponent<TorchManager>();
         movement = GetComponent<PlayerMovement>();
+        playerAnimationManager = GetComponent<PlayerAnimationManager>();
     }
 
     public static Player SpawnNewPlayer(string username, ushort id, bool local)
@@ -44,7 +48,13 @@ public class Player : MonoBehaviour
         else
         {
             Debug.Log($"Making player {id} not local");
-            newPlayer.GetComponentInChildren<MeshRenderer>().gameObject.layer = 12;
+            List<SkinnedMeshRenderer> renderers = newPlayer.playerAnimationManager.animator
+                .GetComponentsInChildren<SkinnedMeshRenderer>().ToList();
+
+            foreach (var renderer in renderers)
+            {
+                renderer.gameObject.layer = 12;
+            }
         }
 
         return newPlayer;
