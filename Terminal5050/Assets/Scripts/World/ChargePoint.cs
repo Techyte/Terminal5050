@@ -70,6 +70,7 @@ public class ChargePoint : Interactable
             _cam = pManager.transform.parent.GetComponentInChildren<CameraController>();
             _movement = player.movement;
             battery = player.powerManager.batteryLocation.GetChild(0);
+            _originScale = battery.localScale;
             
             PowerManager.Instance.NewDrain("Charging", chargeSpeed);
             _interacting = true;
@@ -130,6 +131,7 @@ public class ChargePoint : Interactable
     
     private DateTime initTime;
     private bool _clicked;
+    private Vector3 _originScale;
 
     private void Slotted()
     {
@@ -141,6 +143,8 @@ public class ChargePoint : Interactable
         battery.transform.position = Vector3.Lerp(_pManager.batteryLocation.position, camViewLoc.position,
             ((float)(DateTime.Now - initTime).TotalSeconds / zoomTime));
         battery.transform.rotation = Quaternion.Lerp(_pManager.batteryLocation.rotation, camViewLoc.rotation,
+            (float)(DateTime.Now - initTime).TotalSeconds / zoomTime);
+        battery.transform.localScale = Vector3.Lerp(_originScale, camViewLoc.localScale,
             (float)(DateTime.Now - initTime).TotalSeconds / zoomTime);
 
         if ((DateTime.Now - initTime).TotalSeconds >= zoomTime && !_clicked)
@@ -155,6 +159,7 @@ public class ChargePoint : Interactable
     {
         battery.transform.position = _pManager.batteryLocation.position;
         battery.transform.rotation = _pManager.batteryLocation.rotation;
+        battery.transform.localScale = _originScale;
         click.Play();
     }
 

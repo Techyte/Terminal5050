@@ -4,6 +4,7 @@ using UnityEngine;
 public class Inventory : MonoBehaviour
 {
     [SerializeField] private Transform itemDisplayLocation;
+    [SerializeField] private Transform nonLocalItemDisplayLocation;
     [SerializeField] private Transform itemThrowSpawnLocation;
     [SerializeField] private Transform cam;
     [SerializeField] private WorldItem worldItemPreset;
@@ -109,8 +110,16 @@ public class Inventory : MonoBehaviour
         if (smallItems[selectedIndex] == null)
             return;
 
-        _currentItemDisplay = Instantiate(smallItems[selectedIndex].template.model, itemDisplayLocation.position,
-            Quaternion.identity, itemDisplayLocation);
+        if (_player.local)
+        {
+            _currentItemDisplay = Instantiate(smallItems[selectedIndex].template.model, itemDisplayLocation.position,
+                Quaternion.identity, itemDisplayLocation);
+        }
+        else
+        {
+            _currentItemDisplay = Instantiate(smallItems[selectedIndex].template.model, nonLocalItemDisplayLocation.position,
+                Quaternion.identity, nonLocalItemDisplayLocation);
+        }
         _currentItemDisplay.transform.localRotation = smallItems[selectedIndex].template.model.transform.rotation;
     }
 
