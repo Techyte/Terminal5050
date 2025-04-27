@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -7,7 +6,7 @@ using UnityEngine.Events;
 public class Player : MonoBehaviour
 {
     public static Player LocalPlayer;
-    public static UnityEvent localPlayerChanged;
+    public static UnityEvent localPlayerChanged =  new UnityEvent();
 
     public ushort id;
     public bool local;
@@ -20,6 +19,7 @@ public class Player : MonoBehaviour
     [HideInInspector] public TorchManager tManager;
     [HideInInspector] public PlayerMovement movement;
     [HideInInspector] public PlayerAnimationManager playerAnimationManager;
+    [HideInInspector] public PlayerPauseManager playerPauseManager;
 
     private void Awake()
     {
@@ -29,6 +29,8 @@ public class Player : MonoBehaviour
         tManager = GetComponent<TorchManager>();
         movement = GetComponent<PlayerMovement>();
         playerAnimationManager = GetComponent<PlayerAnimationManager>();
+        movement = GetComponent<PlayerMovement>();
+        playerPauseManager = GetComponent<PlayerPauseManager>();
     }
 
     public static Player SpawnNewPlayer(string username, ushort id, bool local)

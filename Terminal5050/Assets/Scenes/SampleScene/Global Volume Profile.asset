@@ -102,10 +102,10 @@ MonoBehaviour:
     m_Value: 0.337
   smoothness:
     m_OverrideState: 1
-    m_Value: 0.429
+    m_Value: 0.198
   rounded:
-    m_OverrideState: 0
-    m_Value: 0
+    m_OverrideState: 1
+    m_Value: 1
 --- !u!114 &5188630379536767462
 MonoBehaviour:
   m_ObjectHideFlags: 3

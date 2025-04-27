@@ -1,3 +1,4 @@
+using System;
 using Riptide;
 using UnityEngine;
 
@@ -41,6 +42,13 @@ public class Inventory : MonoBehaviour
             smallItems[i] = defaultItems[i];
         }
         
+        UpdateSelected();
+        
+        Player.localPlayerChanged.AddListener(LocalPlayerChanged);
+    }
+
+    private void LocalPlayerChanged()
+    {
         UpdateSelected();
     }
 
@@ -246,12 +254,12 @@ public class Inventory : MonoBehaviour
                 if (inventory.TryGainItem(worldItem))
                 {
                     if (player.local)
-                        ActionBar.Instance.NewOutput($"+1 {worldItem.Item.template.name}");
+                        ActionBar.NewOutput($"+1 {worldItem.Item.template.name}");
                 }
                 else
                 {
                     if (player.local)
-                        ActionBar.Instance.NewOutput("Not enough space to pick up item", Color.red);
+                        ActionBar.NewOutput("Not enough space to pick up item", Color.red);
                 }
             }
             
@@ -288,12 +296,12 @@ public class Inventory : MonoBehaviour
             if (inventory.TryGainItem(worldItem))
             {
                 if (player.local)
-                    ActionBar.Instance.NewOutput($"+1 {worldItem.Item.template.name}");
+                    ActionBar.NewOutput($"+1 {worldItem.Item.template.name}");
             }
             else
             {
                 if (player.local)
-                    ActionBar.Instance.NewOutput("Not enough space to pick up item", Color.red);
+                    ActionBar.NewOutput("Not enough space to pick up item", Color.red);
             }
         }
     }
@@ -386,4 +394,9 @@ public class Inventory : MonoBehaviour
     }
 
     #endregion
+
+    private void OnDisable()
+    {
+        Player.localPlayerChanged.RemoveListener(LocalPlayerChanged);
+    }
 }

@@ -31,7 +31,7 @@ Transform:
   m_GameObject: {fileID: 7102211569888952317}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.532, y: 0.681, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -54,6 +54,7 @@ MonoBehaviour:
   mRenderer: {fileID: 8458607119928253506}
   mCollider: {fileID: 1049346984847135193}
   rb: {fileID: 8525870426494361911}
+  id: U77XV
 --- !u!54 &8525870426494361911
 Rigidbody:
   m_ObjectHideFlags: 0

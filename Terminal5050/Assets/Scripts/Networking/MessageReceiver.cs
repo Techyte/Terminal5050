@@ -123,6 +123,12 @@ public class MessageReceiver
         PlayerSpawningInfo.Instance.ClientReceivedPowerBlast(message);
     }
     
+    [MessageHandler(((ushort)ServerToClientMessageId.EntityPosRotBlast))]
+    private static void ClientEntityPosRotBlast(Message message)
+    {
+        PlayerSpawningInfo.Instance.ClientReceivedEntityPosRot(message);
+    }
+    
     [MessageHandler(((ushort)ServerToClientMessageId.CameraToggled))]
     private static void ClientCameraToggled(Message message)
     {

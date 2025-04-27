@@ -63,7 +63,6 @@ public class TorchManager : MonoBehaviour
 
         if (wantToToggle && _pManager.charge >= 0)
         {
-            Debug.Log("toggling torch");
             SendItemToggleMessage(Player.LocalPlayer.id, !_on);
         }
 

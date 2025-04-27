@@ -42,7 +42,7 @@ public class ChargePoint : Interactable
         {
             if (player.local)
             {
-                ActionBar.Instance.NewOutput("Charge Point Occupied");
+                ActionBar.NewOutput("Charge Point Occupied");
                 error.Play();
             }
             return;
@@ -61,7 +61,7 @@ public class ChargePoint : Interactable
             {
                 if (player.local)
                 {
-                    ActionBar.Instance.NewOutput("Power Pack Full");
+                    ActionBar.NewOutput("Power Pack Full");
                     error.Play();
                 }
                 return;
@@ -106,13 +106,13 @@ public class ChargePoint : Interactable
                 
                 GoBack();
                 if (local)
-                    ActionBar.Instance.NewOutput("Finished Charging");
+                    ActionBar.NewOutput("Finished Charging");
             }
             else if (PowerManager.Instance.CurrentCharge - amountToGain <= 0)
             {
                 GoBack();
                 if (local)
-                    ActionBar.Instance.NewOutput("Ran out of power", Color.red);
+                    ActionBar.NewOutput("Ran out of power", Color.red);
             }
             else
             {
@@ -135,8 +135,6 @@ public class ChargePoint : Interactable
 
     private void Slotted()
     {
-        Debug.Log("Slotting");
-        
         _movement.cancel = true;
         _cam.cancel = true;
         

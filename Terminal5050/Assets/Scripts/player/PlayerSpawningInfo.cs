@@ -39,6 +39,7 @@ public class PlayerSpawningInfo : MonoBehaviour
         ServerPosRotBlast();
         ServerPowerBlast();
         ServerSendCameraRotation();
+        ServerSendEntityPosRot();
     }
 
     private void ClientStateInfo()
@@ -56,6 +57,22 @@ public class PlayerSpawningInfo : MonoBehaviour
     {
         Message message = Message.Create(MessageSendMode.Unreliable, ServerToClientMessageId.CameraRot);
         message.AddFloat(CameraManager.Instance.rotation);
+
+        NetworkManager.Instance.Server.SendToAll(message, Player.LocalPlayer.id);
+    }
+
+    private void ServerSendEntityPosRot()
+    {
+        Message message = Message.Create(MessageSendMode.Unreliable, ServerToClientMessageId.EntityPosRotBlast);
+
+        message.AddInt(Entity.entities.Count);
+
+        foreach (var entity in Entity.entities.Values)
+        {
+            message.AddString(entity.id);
+            message.AddVector3(entity.transform.position);
+            message.AddQuaternion(entity.transform.rotation);
+        }
 
         NetworkManager.Instance.Server.SendToAll(message, Player.LocalPlayer.id);
     }
@@ -109,7 +126,7 @@ public class PlayerSpawningInfo : MonoBehaviour
                     if (!player.local)
                     {
                         player.transform.position = position;
-                        player.rotationManager.cam.rotation = rotation;
+                        player.rotationManager.camCamera.ChangeRotation(rotation);
                     }
                 }
             }
@@ -123,7 +140,7 @@ public class PlayerSpawningInfo : MonoBehaviour
             if (!player.local)
             {
                 player.transform.position = pos;
-                player.rotationManager.cam.rotation = rot;
+                player.rotationManager.camCamera.ChangeRotation(rot);
             }
         }
     }
@@ -204,4 +221,25 @@ public class PlayerSpawningInfo : MonoBehaviour
     }
 
     #endregion
+    
+    public void ClientReceivedEntityPosRot(Message message)
+    {
+        int length = message.GetInt();
+        
+        if (length != 0)
+        {
+            for (int i = 0; i < length; i++)
+            {
+                string id = message.GetString();
+                Vector3 pos = message.GetVector3();
+                Quaternion rot = message.GetQuaternion();
+                
+                if (Entity.entities.TryGetValue(id, out Entity entity))
+                {
+                    entity.transform.position = pos;
+                    entity.transform.rotation = rot;
+                }
+            }
+        }
+    }
 }

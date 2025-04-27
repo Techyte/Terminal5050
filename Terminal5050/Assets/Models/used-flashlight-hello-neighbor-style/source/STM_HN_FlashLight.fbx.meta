@@ -3,7 +3,27 @@ guid: 4f9d618c32f192e4b8e3764844029c1d
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Cristal
+    second: {fileID: 2100000, guid: 5b0cc16e4ceee044eb630af6ad27b9d3, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Exteriror
+    second: {fileID: 2100000, guid: 71f8f6266a4b4f249bd32c1a84ca5b6b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Foco
+    second: {fileID: 2100000, guid: 7c293262263182740b1ef094d8b7e50a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Interior
+    second: {fileID: 2100000, guid: b17829a75bdd2924ba94773f652232f6, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

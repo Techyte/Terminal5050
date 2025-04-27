@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class CameraController : MonoBehaviour
@@ -10,6 +11,9 @@ public class CameraController : MonoBehaviour
 
     [SerializeField] private Transform orientation;
     [SerializeField] private Transform itemDisplay;
+    [SerializeField] private float headRotationYLimit;
+    [SerializeField] private float headRotationXLimit;
+    [SerializeField] private Transform headTransform;
 
     [Header("Camera Adjustment Controls")]
     [SerializeField] private PlayerMovement playerController;
@@ -29,6 +33,8 @@ public class CameraController : MonoBehaviour
     private float yRotation;
     private float zRotation;
 
+    private float defaultHeadXRotation;
+
     private AudioListener _thisListener;
 
     private Player _player;
@@ -38,6 +44,7 @@ public class CameraController : MonoBehaviour
         thisCam = GetComponent<Camera>();
         _player = playerController.GetComponent<Player>();
         _thisListener = GetComponent<AudioListener>();
+        defaultHeadXRotation = headTransform.eulerAngles.z;
     }
 
     private void Start()
@@ -111,7 +118,47 @@ public class CameraController : MonoBehaviour
                 itemDisplay.localPosition.z);
         }
     }
-    
+
+    private float _currentYRotation;
+    private float _currentXRotation;
+
+    public void ChangeRotation(Quaternion rotation)
+    {
+        Vector3 euler = rotation.eulerAngles;
+        Vector3 headEuler = headTransform.rotation.eulerAngles;
+
+        float difference = _currentYRotation - euler.y;
+        if (difference < 0)
+        {
+            difference = -difference;
+        }
+
+        // if (difference - euler.y > headRotationYLimit)
+        // {
+        //     headTransform.rotation = Quaternion.Euler(headEuler.x, euler.y, headEuler.z);
+        // }
+        // else
+        // {
+        //     Vector3 currentEuler = transform.rotation.eulerAngles;
+        //     transform.rotation = Quaternion.Euler(currentEuler.x, euler.y, currentEuler.z);
+        //     headTransform.rotation = Quaternion.Euler(headEuler.x, 3.783f, headEuler.z);
+        //     _currentYRotation = euler.y;
+        // }
+        Vector3 currentEuler = transform.rotation.eulerAngles;
+        transform.rotation = Quaternion.Euler(currentEuler.x, euler.y, currentEuler.z);
+        
+        _currentXRotation = Mathf.Clamp(euler.x, -headRotationXLimit, headRotationXLimit);
+    }
+
+    private void LateUpdate()
+    {
+        if (!_player.local)
+        {
+            Vector3 headEuler = headTransform.rotation.eulerAngles;
+            headTransform.rotation = Quaternion.Euler(headEuler.x, headEuler.y, defaultHeadXRotation + _currentXRotation);
+        }
+    }
+
     public void ToggleCursorMode()
     {
         if (Cursor.lockState == CursorLockMode.None)

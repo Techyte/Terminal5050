@@ -1,4 +1,5 @@
 using Riptide;
+using UnityEngine;
 
 public class Depositer : Interactable
 {
@@ -30,9 +31,10 @@ public class Depositer : Interactable
         // remove the item from the players inventory
         if (NetworkManager.Instance.players.TryGetValue(id, out Player player))
         {
+            Debug.Log($"Removing item for id {id}");
             if (player.local)
             {
-                ActionBar.Instance.NewOutput($"Sold {player.inventory.smallItems[index].template.name}");
+                ActionBar.NewOutput($"Sold {player.inventory.smallItems[index].template.name}");
             }
             
             player.inventory.smallItems[index] = null;

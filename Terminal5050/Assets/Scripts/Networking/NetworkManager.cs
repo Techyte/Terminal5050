@@ -34,6 +34,7 @@ enum ServerToClientMessageId : ushort
     CurrentPlayerInfo,
     PosRotBlast,
     PowerBlast,
+    EntityPosRotBlast,
     PowerOverloaded,
     CameraChanged,
     CameraToggled,
@@ -290,7 +291,7 @@ public class NetworkManager : MonoBehaviour
 
         Server.SendToAll(message, Client.Id);
         
-        ActionBar.Instance.NewOutput($"{username} joined the game");
+        ActionBar.NewOutput($"{username} joined the game");
     }
 
     public void ClientNewPlayerJoined(ushort client, string username)
@@ -300,7 +301,7 @@ public class NetworkManager : MonoBehaviour
         
         _clientPlayers.Add(client, newPlayer);
         
-        ActionBar.Instance.NewOutput($"{username} joined the game");
+        ActionBar.NewOutput($"{username} joined the game");
     }
 
     public void CurrentPlayerInfo(Message message)

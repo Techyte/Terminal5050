@@ -9,6 +9,7 @@ public class ActionBar : MonoBehaviour
     [SerializeField] private TextMeshProUGUI actionBarText;
     [SerializeField] private float fadeSpeed;
     [SerializeField] private float openDuration;
+    [SerializeField] private Player player;
 
     private bool _on;
 
@@ -25,23 +26,42 @@ public class ActionBar : MonoBehaviour
         }
     }
 
-    private void Awake()
+    private void Start()
     {
-        Instance = this;
+        if (player.local)
+        {
+            Instance = this;
+        }
     }
 
-    public void NewOutput(string content, Color color)
+    private void RealNewOutput(string content, Color color)
     {
         _on = true;
         actionBarText.text += $"<color=#{color.ToHexString()}>\n" + content + "</color>";
     }
 
-    public void NewOutput(string content)
+    private void RealNewOutput(string content)
     {
         NewOutput(content+"\n", Color.white);
         StopAllCoroutines();
         _on = true;
         StartCoroutine(FadeCountdown());
+    }
+
+    public static void NewOutput(string content, Color color)
+    {
+        if (Instance)
+        {
+            Instance.RealNewOutput(content, color);
+        }
+    }
+
+    public static void NewOutput(string content)
+    {
+        if (Instance)
+        {
+            Instance.RealNewOutput(content);
+        }
     }
 
     private IEnumerator FadeCountdown()

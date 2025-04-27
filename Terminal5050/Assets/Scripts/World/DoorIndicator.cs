@@ -17,13 +17,26 @@ public class DoorIndicator : Interactable
     public override void Interact(Player player)
     {
         Inventory inventory = player.inventory;
-        if (inventory.smallItems[inventory.selectedIndex].template.name == "Scanner")
+        if (inventory.smallItems[inventory.selectedIndex] != null)
         {
-            SendDoorPingMessage(Player.LocalPlayer.id, sourceDoor.id);
+            if (inventory.smallItems[inventory.selectedIndex].template.name == "Scanner")
+            {
+                SendDoorPingMessage(Player.LocalPlayer.id, sourceDoor.id);
+            }
+            else
+            {
+                if (player.local)
+                {
+                    ActionBar.NewOutput("Scanner needed");
+                }
+            }
         }
         else
         {
-            ActionBar.Instance.NewOutput("Scanner needed");
+            if (player.local)
+            {
+                ActionBar.NewOutput("Scanner needed");
+            }
         }
     }
 
@@ -32,7 +45,7 @@ public class DoorIndicator : Interactable
         bool local = pManager.GetComponent<Player>().local;
 
         if (local)
-            ActionBar.Instance.NewOutput("Attempting to ping door back to base");
+            ActionBar.NewOutput("Attempting to ping door back to base");
         
         Inventory inventory = pManager.GetComponent<Inventory>();
         TorchManager tManager = pManager.GetComponent<TorchManager>();
@@ -42,7 +55,7 @@ public class DoorIndicator : Interactable
         if (pManager.charge - tManager.scannerDrain <= 0)
         {
             if (local)
-                ActionBar.Instance.NewOutput("Insufficient power", Color.red);
+                ActionBar.NewOutput("Insufficient power", Color.red);
             yield break;
         }
         
@@ -50,7 +63,7 @@ public class DoorIndicator : Interactable
         
         CMDManager.Instance.tBehaviour.PlayerPingedDoor(sourceDoor.id);
         if (local)
-            ActionBar.Instance.NewOutput("Ping successful");
+            ActionBar.NewOutput("Ping successful");
         
         inventory.Beep.Play();
     }
