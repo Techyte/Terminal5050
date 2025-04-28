@@ -11,7 +11,7 @@ public class WorldItem : Interactable
 
     [SerializeField] private ItemTemplate defaultItem;
     [SerializeField] private MeshFilter filter;
-    [SerializeField] private MeshRenderer mRenderer;
+    public MeshRenderer mRenderer;
     [SerializeField] private MeshCollider mCollider;
     [SerializeField] private Rigidbody rb;
 
