@@ -60,7 +60,7 @@ public class CameraController : MonoBehaviour
         if (!_player.local)
         {
             thisCam.enabled = false;
-            _thisListener.enabled = true;
+            _thisListener.enabled = false;
             return;
         }
         
