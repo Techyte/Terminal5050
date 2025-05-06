@@ -42,7 +42,6 @@ public class GrabIndicatorDisplay : MonoBehaviour
             indicatorText.text = _focusedItem.Item.template.name;
             Vector2 screenPos = playerCamera.WorldToScreenPoint(_focusedItem.mRenderer.bounds.center);
             interactionImage.transform.position = screenPos;
-            lineRendererUi.originPosition = screenPos;
             Sway();
         }
         else
