@@ -53,6 +53,8 @@ public class Player : MonoBehaviour
             List<SkinnedMeshRenderer> renderers = newPlayer.playerAnimationManager.animator
                 .GetComponentsInChildren<SkinnedMeshRenderer>().ToList();
 
+            Destroy(playerObj.GetComponentInChildren<AudioListener>());
+
             foreach (var renderer in renderers)
             {
                 renderer.gameObject.layer = 12;

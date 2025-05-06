@@ -124,8 +124,8 @@ public class Inventory : MonoBehaviour
         }
         else
         {
-            _currentItemDisplay = Instantiate(heldItem.template.model, displayPosition.position,
-                Quaternion.identity, displayPosition);
+            _currentItemDisplay = Instantiate(heldItem.template.model, nonLocalItemDisplayLocation.position,
+                Quaternion.identity, nonLocalItemDisplayLocation);
         }
         _currentItemDisplay.transform.localRotation = heldItem.template.model.transform.rotation;
     }
