@@ -6,6 +6,7 @@ public class GrabIndicatorDisplay : MonoBehaviour
 {
     [SerializeField] private ManualDoorInteractionManager interactionManager;
     [SerializeField] private LineRendererUi lineRendererUi;
+    [SerializeField] private RectTransform center;
     [SerializeField] private TextMeshProUGUI indicatorText;
     [SerializeField] private Image interactionImage;
     [SerializeField] private Transform indicatorLabel;
@@ -14,7 +15,6 @@ public class GrabIndicatorDisplay : MonoBehaviour
     [SerializeField] private float smooth = 2;
     [SerializeField] private Camera playerCamera;
     [SerializeField] private Transform origin;
-    [SerializeField] private Transform canvasObject;
 
     private WorldItem _focusedItem;
     
@@ -46,7 +46,7 @@ public class GrabIndicatorDisplay : MonoBehaviour
         }
         else
         {
-            interactionImage.transform.position = Vector3.zero;
+            interactionImage.transform.position = center.position;
         }
     }
 

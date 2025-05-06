@@ -87,8 +87,6 @@ public class Player : MonoBehaviour
             interaction.SetPlayer(transform.parent.GetComponentInChildren<Camera>().transform, GetComponent<PlayerMovement>());
         }
         
-        
-        
         LocalPlayer = this;
         
         local = true;

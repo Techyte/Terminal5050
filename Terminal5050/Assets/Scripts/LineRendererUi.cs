@@ -22,11 +22,8 @@ public class LineRendererUi : MonoBehaviour
 
     public void CreateLine()
     {
-        Debug.Log("CreateLine");
-        if (origin.gameObject.activeSelf && this.gameObject.activeSelf)
+        if (origin.gameObject.activeSelf && target.gameObject.activeSelf)
         {
-            Debug.Log("active");
-
             worldTarget.position = target.position;
 
             Vector2 obj1Pos = origin.anchoredPosition;

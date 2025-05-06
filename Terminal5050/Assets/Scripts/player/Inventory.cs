@@ -1,10 +1,10 @@
-using System;
 using Riptide;
 using UnityEngine;
 
 public class Inventory : MonoBehaviour
 {
     [SerializeField] private Transform itemDisplayLocation;
+    [SerializeField] private Transform largeItemDisplayLocation;
     [SerializeField] private Transform nonLocalItemDisplayLocation;
     [SerializeField] private Transform itemThrowSpawnLocation;
     [SerializeField] private Transform cam;
@@ -115,15 +115,17 @@ public class Inventory : MonoBehaviour
         if (heldItem == null)
             return;
 
+        Transform displayPosition = largeItem != null ? largeItemDisplayLocation : itemDisplayLocation;
+
         if (_player.local)
         {
-            _currentItemDisplay = Instantiate(heldItem.template.model, itemDisplayLocation.position,
-                Quaternion.identity, itemDisplayLocation);
+            _currentItemDisplay = Instantiate(heldItem.template.model, displayPosition.position,
+                Quaternion.identity, displayPosition);
         }
         else
         {
-            _currentItemDisplay = Instantiate(heldItem.template.model, nonLocalItemDisplayLocation.position,
-                Quaternion.identity, nonLocalItemDisplayLocation);
+            _currentItemDisplay = Instantiate(heldItem.template.model, displayPosition.position,
+                Quaternion.identity, displayPosition);
         }
         _currentItemDisplay.transform.localRotation = heldItem.template.model.transform.rotation;
     }
