@@ -147,12 +147,13 @@ public class Inventory : MonoBehaviour
         if (big)
         {
             worldItem.Init(largeItem);
+            largeItem = null;
         }
         else
         {
             worldItem.Init(smallItems[index]);
+            smallItems[index] = null;
         }
-        smallItems[index] = null;
         
         worldItem.GetComponent<Rigidbody>().AddForce(itemThrowSpawnLocation.forward * throwForce);
         
