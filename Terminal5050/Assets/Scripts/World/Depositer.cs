@@ -14,19 +14,19 @@ public class Depositer : Interactable
     {
         if (player.local)
         {
-            Item currentItem = player.inventory.smallItems[player.inventory.selectedIndex];
+            Item currentItem = player.inventory.heldItem;
 
             if (currentItem != null)
             {
                 if (currentItem.template.canBeSold)
                 {
-                    SendDepositItemMessage(player.id, player.inventory.selectedIndex, currentItem.template.sellPrice);
+                    SendDepositItemMessage(player.id, player.inventory.largeItem != null, player.inventory.selectedIndex, currentItem.template.sellPrice);
                 }
             }
         }
     }
 
-    private void RemoveItem(ushort id, int index)
+    private void RemoveItem(ushort id, bool big, int index)
     {
         // remove the item from the players inventory
         if (NetworkManager.Instance.players.TryGetValue(id, out Player player))
@@ -34,15 +34,22 @@ public class Depositer : Interactable
             Debug.Log($"Removing item for id {id}");
             if (player.local)
             {
-                ActionBar.NewOutput($"Sold {player.inventory.smallItems[index].template.name}");
+                ActionBar.NewOutput($"Sold {player.inventory.heldItem.template.name}");
             }
-            
-            player.inventory.smallItems[index] = null;
+
+            if (big)
+            {
+                player.inventory.largeItem = null;
+            }
+            else
+            {
+                player.inventory.smallItems[index] = null;
+            }
             player.inventory.UpdateSelectedItem();
         }
     }
 
-    public static void SendDepositItemMessage(ushort id, int itemToDepositIndex, int value)
+    public static void SendDepositItemMessage(ushort id, bool big, int itemToDepositIndex, int value)
     {
         // host
         if (NetworkManager.Instance.Server != null)
@@ -53,10 +60,11 @@ public class Depositer : Interactable
             // change the value we send to the new total, this is what the clients will receive
             value = BankManager.Instance.Value;
             
-            Instance.RemoveItem(id, itemToDepositIndex);
+            Instance.RemoveItem(id, big, itemToDepositIndex);
             
             Message message = Message.Create(MessageSendMode.Reliable, ServerToClientMessageId.ItemDeposited);
             message.AddUShort(id);
+            message.AddBool(big);
             message.AddInt(itemToDepositIndex);
             message.AddInt(value);
 
@@ -65,6 +73,7 @@ public class Depositer : Interactable
         else // client wants to notify the server
         {
             Message message = Message.Create(MessageSendMode.Reliable, ClientToServerMessageId.DepositItem);
+            message.AddBool(big);
             message.AddInt(itemToDepositIndex);
             message.AddInt(value);
 
@@ -72,15 +81,15 @@ public class Depositer : Interactable
         }
     }
 
-    public static void ServerReceivedDepositItem(ushort id, int itemToDepositIndex, int value)
+    public static void ServerReceivedDepositItem(ushort id, bool big, int itemToDepositIndex, int value)
     {
-        SendDepositItemMessage(id, itemToDepositIndex, value);
+        SendDepositItemMessage(id, big, itemToDepositIndex, value);
     }
 
-    public static void ClientReceivedItemDeposited(ushort id, int itemToDepositIndex, int value)
+    public static void ClientReceivedItemDeposited(ushort id, bool big, int itemToDepositIndex, int value)
     {
         BankManager.Instance.SetNewValue(value);
 
-        Instance.RemoveItem(id, itemToDepositIndex);
+        Instance.RemoveItem(id, big, itemToDepositIndex);
     }
 }

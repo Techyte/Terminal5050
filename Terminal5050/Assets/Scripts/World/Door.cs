@@ -17,7 +17,7 @@ public class Door : MonoBehaviour
 
     private void Awake()
     {
-        indicator = transform.parent.GetComponentInChildren<DoorIndicator>();
+        indicator = gameObject.GetComponentInChildren<DoorIndicator>();
     }
 
     private void OnValidate()

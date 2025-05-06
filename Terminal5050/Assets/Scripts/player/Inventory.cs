@@ -23,6 +23,7 @@ public class Inventory : MonoBehaviour
     public AudioSource Click => click;
     
     public int selectedIndex = 0;
+    public Item heldItem => largeItem == null ? smallItems[selectedIndex] : largeItem;
     [HideInInspector] public Item largeItem;
     [HideInInspector] public Item[] smallItems;
 
@@ -75,6 +76,7 @@ public class Inventory : MonoBehaviour
         {
             SendSwapItemMessage(Player.LocalPlayer.id, 3);
         }
+
         if (Input.GetKeyDown(KeyCode.Alpha5))
         {
             SendSwapItemMessage(Player.LocalPlayer.id, 4);
@@ -86,14 +88,9 @@ public class Inventory : MonoBehaviour
         wantToDrop = Input.GetKeyDown(KeyCode.Q) && _player.local;
         dropLarge = Input.GetKey(KeyCode.LeftControl) && _player.local;
 
-        if (wantToDrop && !dropLarge && smallItems[selectedIndex] != null)
+        if (wantToDrop && !dropLarge && heldItem != null)
         {
-            SendDropItemMessage(Player.LocalPlayer.id, false, selectedIndex);
-        }
-
-        if (wantToDrop && dropLarge && largeItem != null)
-        {
-            SendDropItemMessage(Player.LocalPlayer.id, true, selectedIndex);
+            SendDropItemMessage(Player.LocalPlayer.id, largeItem != null, selectedIndex);
         }
     }
 
@@ -115,20 +112,20 @@ public class Inventory : MonoBehaviour
             Destroy(_currentItemDisplay);
         }
 
-        if (smallItems[selectedIndex] == null)
+        if (heldItem == null)
             return;
 
         if (_player.local)
         {
-            _currentItemDisplay = Instantiate(smallItems[selectedIndex].template.model, itemDisplayLocation.position,
+            _currentItemDisplay = Instantiate(heldItem.template.model, itemDisplayLocation.position,
                 Quaternion.identity, itemDisplayLocation);
         }
         else
         {
-            _currentItemDisplay = Instantiate(smallItems[selectedIndex].template.model, nonLocalItemDisplayLocation.position,
+            _currentItemDisplay = Instantiate(heldItem.template.model, nonLocalItemDisplayLocation.position,
                 Quaternion.identity, nonLocalItemDisplayLocation);
         }
-        _currentItemDisplay.transform.localRotation = smallItems[selectedIndex].template.model.transform.rotation;
+        _currentItemDisplay.transform.localRotation = heldItem.template.model.transform.rotation;
     }
 
     private string ThrowItem(bool big, int index, string id = "")

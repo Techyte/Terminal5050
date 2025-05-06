@@ -27,11 +27,11 @@ public class TorchManager : MonoBehaviour
 
     private void Update()
     {
-        if (_inventory.smallItems[_inventory.selectedIndex] != null)
+        if (_inventory.heldItem != null)
         {
-            if (_inventory.smallItems[_inventory.selectedIndex].template.name == "Torch")
+            if (_inventory.heldItem.template.name == "Torch")
             {
-                _torch = _inventory.smallItems[_inventory.selectedIndex];
+                _torch = _inventory.heldItem;
             }
             else
             {

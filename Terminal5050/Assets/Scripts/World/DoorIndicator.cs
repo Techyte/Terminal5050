@@ -17,9 +17,9 @@ public class DoorIndicator : Interactable
     public override void Interact(Player player)
     {
         Inventory inventory = player.inventory;
-        if (inventory.smallItems[inventory.selectedIndex] != null)
+        if (inventory.heldItem != null)
         {
-            if (inventory.smallItems[inventory.selectedIndex].template.name == "Scanner")
+            if (inventory.heldItem.template.name == "Scanner")
             {
                 SendDoorPingMessage(Player.LocalPlayer.id, sourceDoor.id);
             }

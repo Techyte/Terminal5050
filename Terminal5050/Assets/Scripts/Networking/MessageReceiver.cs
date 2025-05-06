@@ -95,7 +95,7 @@ public class MessageReceiver
     [MessageHandler(((ushort)ClientToServerMessageId.DepositItem))]
     private static void ServerDepositItem(ushort clientId, Message message)
     {
-        Depositer.ServerReceivedDepositItem(clientId, message.GetInt(), message.GetInt());
+        Depositer.ServerReceivedDepositItem(clientId, message.GetBool(), message.GetInt(), message.GetInt());
     }
     
     // Also used to tell a client that just joined to spawn itself lol
@@ -216,6 +216,6 @@ public class MessageReceiver
     [MessageHandler(((ushort)ServerToClientMessageId.ItemDeposited))]
     private static void ClientItemDeposited(Message message)
     {
-        Depositer.ClientReceivedItemDeposited(message.GetUShort(), message.GetInt(), message.GetInt());
+        Depositer.ClientReceivedItemDeposited(message.GetUShort(), message.GetBool(), message.GetInt(), message.GetInt());
     }
 }
