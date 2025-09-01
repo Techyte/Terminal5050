@@ -4,10 +4,18 @@ using UnityEngine;
 public class Depositer : Interactable
 {
     public static Depositer Instance;
+    
+    private BoxCollider boxCollider;
 
     private void Awake()
     {
         Instance = this;
+        boxCollider = GetComponent<BoxCollider>();
+    }
+
+    private void Start()
+    {
+        hoverable = true;
     }
 
     public override void Interact(Player player)
@@ -24,6 +32,16 @@ public class Depositer : Interactable
                 }
             }
         }
+    }
+
+    public override string GetHoverText(Player player)
+    {
+        return player.inventory.heldItem != null ? $"Deposit {player.inventory.heldItem.template.name}" : "Deposit here";
+    }
+
+    public override Vector3 GetHoverBounds()
+    {
+        return boxCollider.bounds.center;
     }
 
     private void RemoveItem(ushort id, bool big, int index)

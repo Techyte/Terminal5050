@@ -27,6 +27,8 @@ public class WorldItem : Interactable
         {
             Init(new Item(defaultItem));
         }
+
+        hoverable = true;
     }
 
     private void OnValidate()
@@ -132,5 +134,15 @@ public class WorldItem : Interactable
         Inventory inventory = player.inventory;
 
         inventory.ItemWantToBePickedUp(this);
+    }
+
+    public override string GetHoverText(Player player)
+    {
+        return _item.template.name;
+    }
+
+    public override Vector3 GetHoverBounds()
+    {
+        return mRenderer.bounds.center;
     }
 }

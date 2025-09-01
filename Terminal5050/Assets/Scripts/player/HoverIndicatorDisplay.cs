@@ -2,7 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GrabIndicatorDisplay : MonoBehaviour
+public class HoverIndicatorDisplay : MonoBehaviour
 {
     [SerializeField] private ManualDoorInteractionManager interactionManager;
     [SerializeField] private LineRendererUi lineRendererUi;
@@ -16,7 +16,7 @@ public class GrabIndicatorDisplay : MonoBehaviour
     [SerializeField] private Camera playerCamera;
     [SerializeField] private Transform origin;
 
-    private WorldItem _focusedItem;
+    private Interactable _focused;
     
     private Player _player;
 
@@ -33,14 +33,14 @@ public class GrabIndicatorDisplay : MonoBehaviour
             return;
         }
 
-        _focusedItem = interactionManager.focusedItem;
+        _focused = interactionManager.focused;
         
-        indicatorUI.SetActive(_focusedItem != null);
+        indicatorUI.SetActive(_focused != null);
 
-        if (_focusedItem != null)
+        if (_focused != null)
         {
-            indicatorText.text = _focusedItem.Item.template.name;
-            Vector2 screenPos = playerCamera.WorldToScreenPoint(_focusedItem.mRenderer.bounds.center);
+            indicatorText.text = _focused.GetHoverText(_player);
+            Vector2 screenPos = playerCamera.WorldToScreenPoint(_focused.GetHoverBounds());
             interactionImage.transform.position = screenPos;
             Sway();
         }

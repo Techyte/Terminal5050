@@ -10,7 +10,7 @@ public class MovementUI : MonoBehaviour
 
     private void Update()
     {
-        speedText.text = $"Speed: {Math.Round(rb.velocity.magnitude, 2)}";
-        velText.text = $"Velocity: {rb.velocity}";
+        speedText.text = $"Speed: {Math.Round(rb.linearVelocity.magnitude, 2)}";
+        velText.text = $"Velocity: {rb.linearVelocity}";
     }
 }

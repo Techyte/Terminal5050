@@ -12,7 +12,7 @@ public class ManualDoorInteractionManager : MonoBehaviour
     [SerializeField] private LayerMask interactableLayer;
     private Inventory _inventory;
 
-    public WorldItem focusedItem;
+    public Interactable focused;
 
     private Player _player;
     private PlayerPauseManager _pause;
@@ -65,13 +65,13 @@ public class ManualDoorInteractionManager : MonoBehaviour
                         interactHit[i].Interact(_player);
                     }
                 }
+                
+                focused = interactHit[0].hoverable ? interactHit[0] : null;
             }
-
-            focusedItem = hit.transform.gameObject.GetComponent<WorldItem>();
         }
         else
         {
-            focusedItem = null;
+            focused = null;
         }
         
         interact.gameObject.SetActive(interacted);
